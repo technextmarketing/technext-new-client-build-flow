@@ -12,14 +12,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: overview = one centred spine of simple cards (trigger -> profile -> 5 outputs -> review -> deliver).
-   Clicking a card opens a right-hand panel with that card's own flowchart, data and skills; the panel edge drags wider,
-   and a container query turns the card flowchart into a horizontal row once the panel is wide. Light only (TechNext site.css tokens). */
+/* Layout: six stages stacked top to bottom. Each stage = label column + a 3-column flow of cards read left to right;
+   diamond-style decision cards end the stages that wait on the client. Clicking any card opens a right-hand panel
+   (drag its edge wider) with that card's own flowchart, data and skills. Light only (TechNext site.css tokens). */
 :root{
   --blue:#3167CA; --blue-700:#1E4691; --blue-300:#6FA0F5; --blue-100:#DDE7F8; --blue-050:#EAF0FB;
   --ink:#1F1F3D; --body:#4C4C63; --muted:#8888A0; --line:#E7E4E9; --alt:#FAF9FB; --paper:#FFFFFF;
   --ok:#137A4A; --ok-100:#BFE3CD; --ok-050:#E8F5EE;
   --amber:#A96B00; --amber-100:#F1DDB5; --amber-050:#FDF6E9;
+  --red:#B4372E;
   --odoo:#714B67; --tl-r:#F26B5E; --tl-y:#F5BF4F; --tl-g:#5FC454;
   --grid:rgba(49,103,202,.045);
   --f-head:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
@@ -28,7 +29,7 @@
   --r-s:8px; --r-m:14px; --r-l:20px;
   --shadow:0 12px 28px -12px rgba(49,103,202,.45);
   --shadow-sm:0 6px 14px -8px rgba(30,70,145,.35);
-  --mock-h:156px;
+  --mock-h:156px; --gap:36px;
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -46,19 +47,21 @@ body{
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- header ---------- */
-.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 32px;flex-wrap:wrap;margin-bottom:34px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 32px;flex-wrap:wrap;margin-bottom:38px}
 .top > div{min-width:0}
 .eyebrow{font:600 12px/1 var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin:0}
 .brand{display:flex;align-items:center;gap:14px;margin:12px 0 6px}
 .brand svg{width:44px;height:44px;fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
 h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spacing:-.03em;margin:0}
 .tagline{font:700 clamp(18px,2.2vw,24px)/1.25 var(--f-head);color:var(--ink);margin:4px 0 10px;text-wrap:balance}
-.lede{max-width:64ch;margin:0;font-size:16px}
+.lede{max-width:66ch;margin:0;font-size:16px}
 .hint{display:flex;gap:8px;align-items:center;margin:14px 0 0;font-size:14px;color:var(--blue-700)}
 .hint svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .legend{display:grid;gap:10px;align-content:end}
 .legend-h{font:600 11px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-.legend-row{display:flex;gap:8px;flex-wrap:wrap}
+.legend-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lg-card{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--f-head);color:var(--ink);padding:7px 10px;border-radius:8px;background:var(--paper);border:1px solid var(--line)}
+.lg-card.gate{border:1.5px dashed var(--ok);color:var(--ok)}
 
 .who{display:inline-flex;align-items:center;gap:7px;font:600 12px/1.2 var(--f-head);padding:7px 11px;border-radius:999px;border:1px solid;white-space:nowrap}
 .who::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
@@ -69,61 +72,95 @@ h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spaci
 .sk-chip{display:inline-flex;align-items:center;font:500 12px/1 var(--f-mono);padding:7px 10px;border-radius:8px;color:var(--blue-700);background:var(--blue-050);border:1px solid var(--blue-100)}
 .sk-chip.build{color:var(--amber);background:var(--amber-050);border:1px dashed var(--amber)}
 
-/* ---------- overview flow ---------- */
-.flow{position:relative}
-.row{display:flex;justify-content:center}
-.spine{width:2px;height:40px;margin:0 auto;position:relative;
-  background:linear-gradient(var(--blue-300) 55%,transparent 0) 0 0/2px 9px;animation:flow .9s linear infinite}
-.spine::after{content:"";position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);
-  border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--blue)}
-.spine.short{height:28px}
-.stage-pill{display:table;margin:0 auto;max-width:100%;text-align:center;font:700 13px/1.3 var(--f-head);color:var(--paper);background:var(--blue);padding:10px 18px;border-radius:999px;box-shadow:var(--shadow)}
+/* ---------- stages ---------- */
+.stage{display:grid;grid-template-columns:210px minmax(0,1fr);gap:20px 32px;align-items:start}
+.st-label{padding-top:4px;min-width:0}
+.st-num{display:block;font:800 40px/1 var(--f-head);color:var(--blue-300);letter-spacing:-.02em}
+.st-label h2{font:800 20px/1.2 var(--f-head);color:var(--ink);margin:8px 0 6px;text-wrap:balance}
+.st-when{margin:0;font-size:13.5px;color:var(--body)}
+.st-out{display:inline-block;margin:10px 0 0;font:600 12px/1.35 var(--f-head);color:var(--blue-700);background:var(--blue-050);border:1px solid var(--blue-100);border-radius:8px;padding:6px 9px}
+.st-out.none{color:var(--muted);background:var(--paper);border-color:var(--line)}
 
+.st-link{display:grid;grid-template-columns:210px minmax(0,1fr);gap:0 32px}
+.st-link > div{grid-column:2;display:flex;flex-direction:column;align-items:center;padding-block:4px}
+.st-link i{display:block;width:2px;height:18px;background:linear-gradient(var(--blue-300) 55%,transparent 0) 0 0/2px 8px;animation:flow .9s linear infinite}
+.st-link i.end{height:20px;position:relative}
+.st-link i.end::after{content:"";position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--blue)}
+.st-link span{font:700 12.5px/1.3 var(--f-head);color:var(--ok);background:var(--ok-050);border:1px solid var(--ok-100);border-radius:999px;padding:6px 12px;text-align:center}
+
+.st-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:var(--gap);row-gap:22px;align-items:stretch}
+.step{position:relative;min-width:0;display:flex;flex-direction:column;gap:10px}
+.st-flow.even .step.one > .card,.lane-b .step.one > .card{flex:1}
+.step + .step::before{content:"";position:absolute;left:calc(-1 * var(--gap) + 6px);top:58px;width:calc(var(--gap) - 18px);height:2px;background:var(--blue-300)}
+.step + .step::after{content:"";position:absolute;left:-12px;top:53px;border-left:8px solid var(--blue);border-top:6px solid transparent;border-bottom:6px solid transparent}
+.pair-k,.lane-k{margin:0;font:700 11px/1.2 var(--f-head);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.pair-k::after,.lane-k::after{content:"";flex:1;height:1px;background:var(--line)}
+.step.pair::before,.step.pair::after{top:76px}
+.step.pair + .step::before{top:76px} .step.pair + .step::after{top:71px}
+.lanes2{display:grid;grid-template-columns:calc((100% - 2 * var(--gap)) / 3 * 2 + var(--gap)) minmax(0,1fr);column-gap:var(--gap);align-items:stretch}
+.lane-a,.lane-b{display:flex;flex-direction:column;gap:10px;min-width:0}
+.lane-a .st-flow{grid-template-columns:repeat(2,minmax(0,1fr));flex:1}
+.lane-b{position:relative}
+.lane-b::before{content:"";position:absolute;left:calc(-1 * var(--gap) / 2);top:0;bottom:0;border-left:1.5px dashed var(--blue-100)}
+.lane-b .step{flex:1}
+
+.branch{display:flex;flex-direction:column;align-items:center;gap:0}
+.branch i{display:block;width:0;height:12px;border-left:2px dashed var(--muted)}
+.branch span{font:600 11.5px/1.2 var(--f-head);color:var(--muted);background:var(--paper);border:1px dashed var(--muted);border-radius:999px;padding:4px 9px}
+.mini{appearance:none;font:600 12.5px/1.3 var(--f-head);color:var(--blue-700);background:var(--paper);border:1px dashed var(--blue-300);border-radius:10px;padding:9px 12px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px}
+.mini:hover{background:var(--blue-050)}
+.mini:focus-visible{outline:3px solid var(--blue-300);outline-offset:2px}
+.mini svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- cards ---------- */
 .card{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);
-  padding:16px 16px 14px;display:flex;flex-direction:column;gap:7px;position:relative;min-width:0;width:100%;
+  padding:15px 16px 13px;display:flex;flex-direction:column;gap:7px;position:relative;min-width:0;width:100%;
   transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
 .card:hover{border-color:var(--blue-300);box-shadow:var(--shadow);transform:translateY(-2px)}
 .card:focus-visible{outline:3px solid var(--blue-300);outline-offset:3px}
 .card[aria-expanded="true"]{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-100),var(--shadow)}
-.node-card{width:min(100%,460px)}
+.card.gate{border:1.5px dashed var(--ok);background:linear-gradient(var(--paper),var(--paper)) padding-box}
+.card.gate:hover{border-color:var(--ok)}
+.card.gate .ico{stroke:var(--ok)}
+.card.gate .c-k{color:var(--ok)}
+.card.side{border-style:dashed;border-color:var(--muted)}
+.card.side .ico{stroke:var(--muted)}
+.card.side .c-k{color:var(--muted)}
 .c-top{display:flex;align-items:center;gap:10px}
-.ico{width:26px;height:26px;flex:none;fill:none;stroke:var(--blue);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ico{width:24px;height:24px;flex:none;fill:none;stroke:var(--blue);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .c-k{font:600 11px/1.25 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
-.c-t{font:700 18px/1.25 var(--f-head);color:var(--ink);text-wrap:balance}
+.c-no{margin-left:auto;font:500 11.5px/1 var(--f-mono);color:var(--muted)}
+.c-t{font:700 17.5px/1.25 var(--f-head);color:var(--ink);text-wrap:balance}
 .c-p{font-size:14px;color:var(--body)}
+.outs{display:grid;gap:5px}
+.out{display:flex;align-items:baseline;gap:8px;font-size:13.5px;color:var(--ink)}
+.out::before{content:"";width:8px;height:8px;flex:none;transform:rotate(45deg) translateY(-1px)}
+.out b{font-weight:600}
+.o-yes::before{background:var(--ok)}
+.o-loop::before{background:var(--amber)}
+.o-wait::before{background:var(--muted)}
+.o-stop::before{background:var(--red)}
 .c-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
 .c-sk{font:600 11.5px/1 var(--f-head);color:var(--blue-700);padding:6px 9px;border-radius:999px;border:1px dashed var(--blue-300);white-space:nowrap}
 .c-go{width:18px;height:18px;margin-left:auto;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease;flex:none}
 .card:hover .c-go{transform:translateX(3px)}
-.card.first{border-color:var(--blue-100);box-shadow:var(--shadow)}
-
-.lanes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;position:relative;padding-block:22px}
-.lanes::before,.lanes::after{content:"";position:absolute;left:calc((100% - 72px) / 10);right:calc((100% - 72px) / 10);height:2px;background:var(--blue-300)}
-.lanes::before{top:0} .lanes::after{bottom:0}
-.lanes .card::before,.lanes .card::after{content:"";position:absolute;left:50%;width:2px;height:22px;margin-left:-1px;background:var(--blue-300)}
-.lanes .card::before{top:-23px} .lanes .card::after{bottom:-23px}
-.lanes .card:hover{transform:none}
-
-.loop-svg{position:absolute;inset:0;pointer-events:none;overflow:visible}
-.loop-svg path.line{fill:none;stroke:var(--ok);stroke-width:2;stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
-.loop-svg marker path{fill:var(--ok)}
-.loop-tag{position:absolute;margin:0;max-width:260px;font:600 12.5px/1.35 var(--f-head);color:var(--ok);background:var(--ok-050);border:1px solid var(--ok-100);border-radius:999px;padding:7px 12px}
 
 /* ---------- skills map ---------- */
-.map{margin-top:44px}
+.map{margin-top:52px}
 .map-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 24px;flex-wrap:wrap;margin-bottom:14px}
 .map-head h2{font:700 22px/1.2 var(--f-head);color:var(--ink);margin:0}
 .map-head p{margin:0;font-size:14px}
 .map-scroll{position:relative;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-l);background:var(--paper)}
-.map-t{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;font-size:13px}
-.map-t th,.map-t td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center}
+.map-t{border-collapse:separate;border-spacing:0;width:100%;min-width:1300px;font-size:13px}
+.map-t th,.map-t td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:center}
 .map-t tbody tr:last-child th,.map-t tbody tr:last-child td{border-bottom:0}
-.map-t thead th{font:600 11px/1.2 var(--f-head);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--alt)}
-.map-t th[scope="row"],.map-t thead th:first-child{text-align:left;position:sticky;left:0;background:var(--paper);z-index:1;min-width:270px}
-.map-t thead th:first-child{background:var(--alt)}
+.map-t thead th{font:600 10.5px/1.2 var(--f-head);color:var(--muted);background:var(--alt);vertical-align:bottom}
+.map-t th[scope="row"],.map-t thead th:first-child{text-align:left;position:sticky;left:0;background:var(--paper);z-index:1;min-width:270px;padding-left:12px}
+.map-t thead th:first-child{background:var(--alt);letter-spacing:.06em;text-transform:uppercase}
 .m-skill{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .m-skill code{font:500 12.5px/1.3 var(--f-mono);color:var(--ink)}
-.m-col{appearance:none;border:0;background:none;font:inherit;color:var(--blue-700);cursor:pointer;padding:5px 7px;border-radius:6px;text-transform:inherit;letter-spacing:inherit;white-space:nowrap}
+.m-col{appearance:none;border:0;background:none;font:inherit;color:var(--blue-700);cursor:pointer;padding:4px 3px;border-radius:6px;display:grid;gap:2px;justify-items:center;width:100%}
+.m-col b{font:500 11px/1 var(--f-mono);color:var(--muted)}
 .m-col:hover{background:var(--blue-050)}
 .m-col:focus-visible{outline:2px solid var(--blue-300);outline-offset:1px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--blue);vertical-align:middle}
@@ -134,7 +171,7 @@ h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spaci
 .is-build .sk-st,.sk.build .sk-st{color:var(--amber);background:var(--amber-050);border-color:var(--amber-100)}
 
 /* ---------- open decisions + footer ---------- */
-.decide{max-width:980px;margin:32px auto 0;padding:18px 22px;border:1px dashed var(--amber-100);border-radius:var(--r-l);background:var(--paper)}
+.decide{max-width:980px;margin:36px auto 0;padding:18px 22px;border:1px dashed var(--amber-100);border-radius:var(--r-l);background:var(--paper)}
 .decide h2{font:700 16px/1.3 var(--f-head);color:var(--ink);margin:0}
 .decide ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14px}
 .decide li::marker{color:var(--amber)}
@@ -184,6 +221,14 @@ h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spaci
 .w-y .st-who{color:var(--amber);background:var(--amber-050)}
 .w-c .st-who{color:var(--ok);background:var(--ok-050)}
 
+.outs-d{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.outs-d li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px;background:var(--alt)}
+.outs-d .out{grid-row:span 2;align-self:start;margin-top:2px;font:700 13.5px/1.3 var(--f-head)}
+.o-go{appearance:none;justify-self:start;font:600 13.5px/1.3 var(--f-head);color:var(--blue-700);background:var(--paper);border:1px solid var(--blue-100);border-radius:8px;padding:6px 10px;cursor:pointer}
+.o-go:hover{background:var(--blue-050)}
+.o-go:focus-visible{outline:3px solid var(--blue-300);outline-offset:2px}
+.o-w{font-size:13.5px;color:var(--body)}
+
 .d-data{display:grid;gap:12px}
 .dd{border:1px solid var(--line);border-radius:var(--r-m);padding:14px 16px;background:var(--alt);min-width:0}
 .dd-k{font:700 12px/1.2 var(--f-head);color:var(--ink);margin:0 0 8px}
@@ -202,6 +247,7 @@ h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spaci
 @container dbody (min-width: 640px){
   .d-sum.has-mock{grid-template-columns:minmax(0,1fr) 300px}
   .d-data{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .outs-d{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 }
 @container dbody (min-width: 860px){
   .steps{display:flex;gap:30px;overflow-x:auto;padding:4px 2px 12px}
@@ -301,21 +347,31 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .vid em{position:absolute;right:7px;top:6px;font:500 8px/1 var(--f-mono);color:var(--blue-300);font-style:normal}
 
 /* motion */
-@keyframes flow{to{background-position:0 9px}}
-@keyframes dash{to{stroke-dashoffset:-12}}
+@keyframes flow{to{background-position:0 8px}}
 @keyframes blink{50%{opacity:0}}
 @keyframes eyes{0%,46%,54%,100%{transform:scaleY(1)}50%{transform:scaleY(.15)}}
 @keyframes slidein{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){
-  .spine,.loop-svg path.line,.caret,.nexi i,.drawer{animation:none}
+  .st-link i,.caret,.nexi i,.drawer{animation:none}
   .card,.c-go{transition:none}
 }
 
 /* responsive */
-@media (max-width:1239px){
-  .lanes{grid-template-columns:repeat(2,minmax(0,1fr));padding-block:0}
-  .lanes::before,.lanes::after,.lanes .card::before,.lanes .card::after{display:none}
-  .lanes .card:last-child{grid-column:1 / -1}
+@media (max-width:1099px){
+  .stage,.st-link{grid-template-columns:minmax(0,1fr)}
+  .st-link > div{grid-column:1}
+  .st-label{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:center}
+  .st-num{grid-row:span 3;font-size:34px}
+  .st-label h2{margin:0}
+  .st-out{justify-self:start;margin-top:6px}
+}
+@media (max-width:860px){
+  .st-flow,.lanes2,.lane-a .st-flow{grid-template-columns:minmax(0,1fr)}
+  .lanes2{row-gap:22px}
+  .lane-b::before{display:none}
+  .step + .step::before{left:50%;top:-20px;width:2px;height:12px;margin-left:-1px}
+  .step + .step::after{left:50%;top:-9px;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--blue);border-bottom:0}
+  .step.pair + .step::before{top:-20px} .step.pair + .step::after{top:-9px}
 }
 @media (max-width:700px){
   .drawer{width:100%!important;border-left:0}
@@ -325,25 +381,26 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   .dbody{padding:18px 16px 28px}
   .wide-btn{display:none}
 }
-@media (max-width:600px){
-  .lanes{grid-template-columns:minmax(0,1fr)}
-}
 </style>
 </head>
 <body>
 <div class="page">
   <header class="top">
     <div>
-      <p class="eyebrow">TechNext &#183; Internal project &#183; Plan v3</p>
+      <p class="eyebrow">TechNext &#183; Internal project &#183; Plan v4</p>
       <div class="brand">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg>
         <h1>NextCore</h1>
       </div>
       <p class="tagline">New client info in, full client pack out.</p>
-      <p class="lede">NextCore turns new client information into one client profile, then builds five outputs from it at the same time, starting with the sales proposal. Every output passes its checks, you review once, and the client gets one consistent pack.</p>
-      <p class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a5 5 0 0 1-4.2-2.3L4.3 14a1.5 1.5 0 0 1 2.4-1.8L9 14.5"/></svg>Click a card to open its own flowchart, data and skills. Drag the panel's edge to make it wider.</p>
+      <p class="lede">NextCore takes a new client through six stages, from the first notes to kick-off. Each stage builds what it needs from one client profile, waits at the decisions only the client can make, and sends nothing until you approve.</p>
+      <p class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a5 5 0 0 1-4.2-2.3L4.3 14a1.5 1.5 0 0 1 2.4-1.8L9 14.5"/></svg>Click any card to open its own flowchart, data and skills. Drag the panel's edge to make it wider.</p>
     </div>
     <div class="legend" aria-label="Legend">
+      <div>
+        <p class="legend-h">Card types</p>
+        <div class="legend-row"><span class="lg-card">Build or send</span><span class="lg-card gate">Client decision</span></div>
+      </div>
       <div>
         <p class="legend-h">Who does the step</p>
         <div class="legend-row"><span class="who sm auto">Automatic</span><span class="who sm you">You</span><span class="who sm client">Client</span></div>
@@ -355,95 +412,71 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     </div>
   </header>
 
-  <div class="flow" id="flow">
-    <svg class="loop-svg" id="loop" aria-hidden="true" hidden>
-      <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-          <path d="M0 0 L10 5 L0 10 z"/>
-        </marker>
-      </defs>
-      <path class="line" id="loop-path" d="" marker-end="url(#arrow)"/>
-    </svg>
-    <p class="loop-tag" id="loop-tag" hidden>Client answers update the profile</p>
+  <div class="stages">
+    <section class="stage" aria-labelledby="s1">
+      <div class="st-label"><span class="st-num">01</span><h2 id="s1">Intake</h2><p class="st-when">Starts when new client info arrives.</p><p class="st-out none">Nothing goes out yet</p></div>
+      <div class="st-flow even">
+        <div class="step one"><div class="slot" data-slot="trigger"></div></div>
+        <div class="step one"><div class="slot" data-slot="profile"></div></div>
+      </div>
+    </section>
+    <div class="st-link"><div><i></i><span>Profile ready</span><i class="end"></i></div></div>
 
-    <div class="row">
-      <button class="card node-card" type="button" data-open="trigger" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/></svg><span class="c-k">Step 1 &#183; Trigger</span></span>
-        <span class="c-t">New client info</span>
-        <span class="c-p">You hand over what we have about the client in one message.</span>
-        <span class="c-foot"><span class="who sm you">You</span><span class="c-sk" data-skills="trigger">1 skill</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-    </div>
+    <section class="stage" aria-labelledby="s2">
+      <div class="st-label"><span class="st-num">02</span><h2 id="s2">Win the deal</h2><p class="st-when">Starts when the profile is ready.</p><p class="st-out">Goes out: Sales Proposal + Short Presentation</p></div>
+      <div class="st-flow">
+        <div class="step pair"><p class="pair-k">Built together</p><div class="slot" data-slot="proposal"></div><div class="slot" data-slot="deck"></div></div>
+        <div class="step one"><div class="slot" data-slot="send-proposal"></div></div>
+        <div class="step"><div class="slot" data-slot="accepted"></div><div class="branch"><i></i><span>No reply</span><i></i></div><div class="slot" data-slot="follow-up"></div></div>
+      </div>
+    </section>
+    <div class="st-link"><div><i></i><span>Yes, accepted</span><i class="end"></i></div></div>
 
-    <div class="spine"></div>
+    <section class="stage" aria-labelledby="s3">
+      <div class="st-label"><span class="st-num">03</span><h2 id="s3">Collect details</h2><p class="st-when">Starts when the client accepts.</p><p class="st-out">Goes out: Data Gathering page</p></div>
+      <div class="st-flow">
+        <div class="step one"><div class="slot" data-slot="data"></div></div>
+        <div class="step"><div class="slot" data-slot="answers"></div><div class="branch"><i></i><span>Missing items</span><i></i></div>
+          <button class="mini" type="button" data-open="follow-up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>Reminder through 07 Follow-up</button></div>
+        <div class="step one"><div class="slot" data-slot="profile-update"></div></div>
+      </div>
+    </section>
+    <div class="st-link"><div><i></i><span>Answers complete</span><i class="end"></i></div></div>
 
-    <div class="row">
-      <button class="card node-card" id="c-profile" type="button" data-open="profile" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 16.5c.8-1.6 2-2.3 3.5-2.3s2.7.7 3.5 2.3M14 10h4M14 13h4"/></svg><span class="c-k">Step 2 &#183; One client profile</span></span>
-        <span class="c-t">Client profile</span>
-        <span class="c-p">One file that every output reads from. Gaps are marked "to collect".</span>
-        <span class="c-foot"><span class="who sm auto">Automatic</span><span class="c-sk" data-skills="profile">2 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-    </div>
+    <section class="stage" aria-labelledby="s4">
+      <div class="st-label"><span class="st-num">04</span><h2 id="s4">Agree the service</h2><p class="st-when">Starts when the answers are complete.</p><p class="st-out">Goes out: SLA for signature</p></div>
+      <div class="st-flow even">
+        <div class="step one"><div class="slot" data-slot="sla"></div></div>
+        <div class="step one"><div class="slot" data-slot="send-sla"></div></div>
+        <div class="step one"><div class="slot" data-slot="signed"></div></div>
+      </div>
+    </section>
+    <div class="st-link"><div><i></i><span>Signed</span><i class="end"></i></div></div>
 
-    <div class="spine"></div>
-    <p class="stage-pill">Step 3 &#183; Five outputs, built at the same time</p>
-    <div class="spine short"></div>
+    <section class="stage" aria-labelledby="s5">
+      <div class="st-label"><span class="st-num">05</span><h2 id="s5">Kick off and announce</h2><p class="st-when">Starts when the SLA is signed. Both lanes run at the same time.</p><p class="st-out">Goes out: kick-off invite, and posts only with their OK</p></div>
+      <div class="lanes2">
+        <div class="lane-a">
+          <p class="lane-k">Announce, only with their OK</p>
+          <div class="st-flow even">
+            <div class="step one"><div class="slot" data-slot="consent"></div></div>
+            <div class="step one"><div class="slot" data-slot="social"></div></div>
+          </div>
+        </div>
+        <div class="lane-b">
+          <p class="lane-k">Kick-off</p>
+          <div class="step one"><div class="slot" data-slot="kickoff"></div></div>
+        </div>
+      </div>
+    </section>
+    <div class="st-link"><div><i></i><span>Kick-off booked, posts scheduled or skipped</span><i class="end"></i></div></div>
 
-    <div class="lanes">
-      <button class="card first" type="button" data-open="proposal" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg><span class="c-k">Goes out 1st</span></span>
-        <span class="c-t">Sales Proposal</span>
-        <span class="c-p">Interactive Odoo-style proposal from our BIR CAS template.</span>
-        <span class="c-foot"><span class="who sm you">You confirm prices</span><span class="c-sk" data-skills="proposal">7 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-      <button class="card" id="c-data" type="button" data-open="data" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10h7M8.5 14h7M8.5 18h4"/></svg><span class="c-k">After they accept</span></span>
-        <span class="c-t">Data Gathering page</span>
-        <span class="c-p">Private page that collects every detail we still need.</span>
-        <span class="c-foot"><span class="who sm client">Client fills</span><span class="c-sk" data-skills="data">4 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-      <button class="card" type="button" data-open="deck" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 12l3-3 2 2 4-4"/></svg><span class="c-k">With the proposal</span></span>
-        <span class="c-t">Short Presentation</span>
-        <span class="c-p">Six TechNext slides written for this client.</span>
-        <span class="c-foot"><span class="who sm auto">Automatic</span><span class="c-sk" data-skills="deck">5 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-      <button class="card" type="button" data-open="sla" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 18c1-1.5 2-1.5 3 0s2 1.5 3 0"/></svg><span class="c-k">After their answers</span></span>
-        <span class="c-t">Service Level Agreement</span>
-        <span class="c-p">4-page A4 Proposal + SLA in the Rev 1.1 format.</span>
-        <span class="c-foot"><span class="who sm you">You confirm figures</span><span class="c-sk" data-skills="sla">4 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-      <button class="card" type="button" data-open="social" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg><span class="c-k">Goes out last</span></span>
-        <span class="c-t">Social posts + Nexi video</span>
-        <span class="c-p">Welcome posts and a Nexi video about their project.</span>
-        <span class="c-foot"><span class="who sm client">Client OK first</span><span class="c-sk" data-skills="social">6 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-    </div>
-
-    <div class="spine"></div>
-
-    <div class="row">
-      <button class="card node-card" type="button" data-open="review" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span class="c-k">Step 4 &#183; Checks, then your review</span></span>
-        <span class="c-t">Checks + your review</span>
-        <span class="c-p">Nothing leaves before it passes its checks and you approve.</span>
-        <span class="c-foot"><span class="who sm you">You approve</span><span class="c-sk" data-skills="review">4 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-    </div>
-
-    <div class="spine"></div>
-
-    <div class="row">
-      <button class="card node-card" type="button" data-open="deliver" aria-controls="drawer" aria-expanded="false">
-        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13l2 2 4-4"/></svg><span class="c-k">Step 5 &#183; Deliver</span></span>
-        <span class="c-t">Client pack</span>
-        <span class="c-p">Filed in one numbered client folder and released in order.</span>
-        <span class="c-foot"><span class="who sm auto">Automatic</span><span class="c-sk" data-skills="deliver">1 skill</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </button>
-    </div>
+    <section class="stage" aria-labelledby="s6">
+      <div class="st-label"><span class="st-num">06</span><h2 id="s6">Close</h2><p class="st-when">Starts when both lanes are done.</p><p class="st-out none">Nothing goes out</p></div>
+      <div class="st-flow">
+        <div class="step one"><div class="slot" data-slot="pack"></div></div>
+      </div>
+    </section>
   </div>
 
   <section class="map" aria-labelledby="map-h">
@@ -457,13 +490,15 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   <section class="decide" aria-labelledby="dq">
     <h2 id="dq">To decide before we build NextCore</h2>
     <ul>
+      <li>How NextCore learns the client accepted or signed: you tell it, or the proposal page reports it.</li>
       <li>Where the Data Gathering page saves answers and files: the client's Odoo CRM record, or their folder on the Marketing drive.</li>
       <li>Where each client's proposal and data page are hosted: a private link per client, with no TechNext site menu and no other client's links.</li>
-      <li>Whether to add a publicity line to the SLA, so the client agrees up front to the welcome post and Nexi video.</li>
+      <li>Whether to add a publicity line to the SLA, so the client agrees to the welcome post and Nexi video when they sign.</li>
+      <li>Follow-up timing: day 3, day 7 and day 14 is a first proposal.</li>
     </ul>
   </section>
 
-  <p class="foot">TechNext &#183; NextCore &#183; Plan v3, 5 Nov 2026 &#183; Northgate Trading Corp. is sample data, not a real client</p>
+  <p class="foot">TechNext &#183; NextCore &#183; Plan v4, 5 Nov 2026 &#183; Northgate Trading Corp. is sample data, not a real client</p>
 </div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -487,12 +522,30 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 
 <script>
 (function(){
+  /* ---------------- icons ---------------- */
+  var IC={
+    inbox:'<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/>',
+    profile:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 16.5c.8-1.6 2-2.3 3.5-2.3s2.7.7 3.5 2.3M14 10h4M14 13h4"/>',
+    plane:'<path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/>',
+    deck:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 12l3-3 2 2 4-4"/>',
+    mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+    gate:'<path d="M12 2.5l9.5 9.5-9.5 9.5L2.5 12z"/><path d="M9.9 9.7a2.2 2.2 0 0 1 4.2.8c0 1.5-2.1 1.8-2.1 3.1M12 16.4v.01"/>',
+    bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    form:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10h7M8.5 14h7M8.5 18h4"/>',
+    sync:'<path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/>',
+    doc:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 18c1-1.5 2-1.5 3 0s2 1.5 3 0"/>',
+    video:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/>',
+    flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+    folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13l2 2 4-4"/>'
+  };
+  var GO='<svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
   /* ---------------- Claude skills ---------------- */
   var SK={
-    'nextcore':{build:true,what:'Runs the whole flow: reads the info, writes the profile, starts every card, files the pack'},
+    'nextcore':{build:true,what:'Runs the whole flow: profile, stages, decisions, reminders, filing'},
     'nextcore-proposal':{build:true,what:'Copies the BIR CAS proposal template and fills it from the profile'},
-    'nextcore-data-page':{build:true,what:'Builds the Data Gathering page from the "to collect" fields'},
-    'nextcore-sla':{build:true,what:'Fills the Rev 1.1 SLA template, renders the PDF, runs the page-fit check'},
+    'nextcore-data-page':{build:true,what:'Builds the Data Gathering page and checks the answers'},
+    'nextcore-sla':{build:true,what:'Fills the Sales Proposal + SLA template, renders the PDF, runs the page-fit check'},
     'technext-presentations':{what:'Builds the 1600x900 TechNext deck, share link and PDF'},
     'technext-social-posts':{what:'Designs and renders the 3:4 posts and 9:16 reel, runs audit.py'},
     'nexi-video':{what:'Makes the Nexi video and runs the release gate'},
@@ -504,6 +557,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     'marketing-skills:copywriting':{what:'Writes page and slide copy'},
     'marketing-skills:copy-editing':{what:'Edits copy against the TechNext copy rules'},
     'marketing-skills:customer-research':{what:'Turns call notes into clear pain points'},
+    'marketing-skills:emails':{what:'Writes the send, reminder and request emails in the adviser voice'},
     'marketing-skills:social':{what:'Captions for each platform'},
     'ai-marketing-skills:de-ai-ify':{what:'Removes AI-sounding phrases from copy'},
     'anthropic-skills:pdf':{what:'Builds and checks the PDFs'},
@@ -511,6 +565,11 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   };
 
   /* ---------------- panel extras ---------------- */
+  var RULES='<div class="box"><p class="dd-k">Copy rules on everything that goes out</p><ul class="dl">'+
+      '<li>No BIR guarantees and no "BIR-ready" or accreditation claims; the client&#8217;s accountant confirms coverage</li>'+
+      '<li>Odoo is never "free": the client pays the Odoo subscription</li>'+
+      '<li>Odoo Partner in Singapore only</li>'+
+      '<li>One client per pack: no other client&#8217;s name, logo or link</li></ul></div>';
   var X={
     say:'<div class="say"><span class="say-k">You say</span><code>nextcore new client: Northgate Trading Corp. + call notes<span class="caret"></span></code></div>',
     profile:'<div class="win" role="img" aria-label="Sample client profile with three fields still to collect"><div class="win-bar"><i></i><i></i><i></i><span>client-profile.json</span><b class="tag">Sample data</b></div>'+
@@ -522,7 +581,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
       '  <span class="k">"pain_points"</span>: [<span class="s">"Excel books"</span>, <span class="s">"stock counts"</span>],\n'+
       '  <span class="k">"odoo_apps"</span>: [<span class="s">"Accounting"</span>, <span class="s">"Inventory"</span>, <span class="s">"Sales"</span>],\n'+
       '  <span class="k">"users"</span>: <span class="n">12</span>,\n'+
-      '  <span class="k">"phases"</span>: <span class="n">3</span>,\n'+
+      '  <span class="k">"stage"</span>: <span class="n">2</span>,\n'+
       '  <span class="k">"tin_branch"</span>: <span class="todo">"to collect"</span>,\n'+
       '  <span class="k">"logo"</span>: <span class="todo">"to collect"</span>,\n'+
       '  <span class="k">"opening_balances"</span>: <span class="todo">"to collect"</span>\n}</pre></div>',
@@ -534,21 +593,19 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
       '<li>Who TechNext is</li><li>What we heard: their pain points</li><li>The Odoo apps for them</li>'+
       '<li>NextSprint: how we work</li><li>Phases and timeline</li><li>Next step</li></ul></div>',
     pages:'<div class="box"><p class="dd-k">The four pages</p><ul class="dl">'+
-      '<li>p1 Cover letter, NextSprint, outcomes, value</li><li>p2 Scope, Gantt, response times P1-P4</li>'+
-      '<li>p3 Why TechNext, investment</li><li>p4 Clauses, next steps, sign-off</li></ul></div>',
-    rules:'<div class="box"><p class="dd-k">Copy rules on all five outputs</p><ul class="dl">'+
-      '<li>No BIR guarantees and no "BIR-ready" or accreditation claims; the client&#8217;s accountant confirms coverage</li>'+
-      '<li>Odoo is never "free": the client pays the Odoo subscription</li>'+
-      '<li>Odoo Partner in Singapore only</li>'+
-      '<li>One client per pack: no other client&#8217;s name, logo or link</li></ul></div>',
+      '<li>p1 Value and Why choose us in the intro title, NextSprint, outcomes</li><li>p2 Scope by phase, Gantt, response times P1-P4</li>'+
+      '<li>p3 Why TechNext, investment (Odoo licence shown separately)</li><li>p4 Terms, next steps, sign-off</li></ul></div>',
+    rules:RULES,
     tree:'<pre class="tree"><span class="d">01. Client Folder\\</span>\n'+
       '  <span class="d">14. &lt;Client name&gt;\\</span>       <span class="m">next free number</span>\n'+
       '    <span class="d">01. Sales Proposal\\</span>\n'+
       '    <span class="d">02. Data Gathering\\</span>\n'+
       '    <span class="d">03. Short Presentation\\</span>\n'+
       '    <span class="d">04. Service Level Agreement\\</span>\n'+
-      '    <span class="d">05. Social Media and Nexi\\</span>\n'+
-      '    <span class="d">_build\\</span>                 <span class="m">sources, not for the client</span></pre>'
+      '    <span class="d">05. Social Media and Nexi\\</span>  <span class="m">only with their OK</span>\n'+
+      '    <span class="d">06. Kick-off\\</span>\n'+
+      '    <span class="d">_build\\</span>                 <span class="m">sources, not for the client</span>\n'+
+      '    <span class="d">00. old\\</span>                <span class="m">superseded revisions</span></pre>'
   };
   var M={
     proposal:'<div class="mock m-quote" aria-hidden="true"><div class="q-win"><div class="q-bar"><i></i><i></i><i></i><span>Quotation S00148</span></div><div class="q-steps"><span class="on">Quotation</span><span>Sent</span><span>Signed</span></div><div class="q-line"><i></i><b></b></div><div class="q-line"><i class="w7"></i><b></b></div><div class="q-line"><i class="w5"></i><b></b></div><div class="q-foot"><em>Part 1 &#183; 2 &#183; 3</em><span class="q-btn">Accept &amp; sign</span></div></div></div>',
@@ -558,123 +615,225 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     social:'<div class="mock m-social" aria-hidden="true"><div class="post"><span class="lgs"><span></span><span></span></span><b>Welcome aboard, Northgate</b><i></i><i></i><span class="pcta"></span></div><div class="vid"><span class="nexi"><i></i><i></i></span><span class="play"></span><em>16:9</em></div></div>'
   };
 
-  /* ---------------- cards ---------------- */
+  /* ---------------- cards, in flow order ----------------
+     who: [class, label]; steps: [who a/y/c, text]; outs (decisions): [type yes/loop/wait/stop, label, target id, what happens] */
   var CARDS=[
-    {id:'trigger',short:'Trigger',kicker:'Step 1 &#183; Trigger',title:'New client info',who:['you','You'],
+    {id:'trigger',stage:'01 Intake',icon:'inbox',kicker:'Start',title:'New client info',short:'Info',who:['you','You'],
+     p:'You hand over what we have about the client in one message.',
      summary:'You hand over whatever we have about the new client in one message. Nothing has to be formatted.',
-     steps:[['y','You collect the info: CRM, call notes, quotation, email'],['y','You say: nextcore new client + the notes'],['a','NextCore opens the next free client folder'],['a','The build starts']],
+     steps:[['y','You collect the info: CRM, call notes, quotation, email'],['y','You say: nextcore new client + the notes'],['a','NextCore opens the next free client folder'],['a','The profile build starts']],
      input:['Odoo CRM opportunity','Discovery call notes','Signed quotation','Email to hello@technext.asia','Their website or business card'],
      output:['A build request with the raw notes'],
      check:['The client is not already in 01. Client Folder'],
      extra:X.say,
      skills:['nextcore'],tools:['Odoo CRM (read)','Gmail (read)','Google Drive'],people:['You, after the discovery call']},
-    {id:'profile',short:'Profile',kicker:'Step 2 &#183; One client profile',title:'Client profile',who:['auto','Automatic'],
-     summary:'NextCore reads what you sent and writes one profile. All five outputs read from it, so a name, a date or a figure is typed once and matches everywhere.',
-     steps:[['a','Read your notes and attachments'],['a','Check their website for company facts'],['a','Write client-profile.json'],['a','Mark gaps as "to collect"'],['a','Hand the profile to the five output cards']],
+
+    {id:'profile',stage:'01 Intake',icon:'profile',kicker:'Build',title:'Client profile',short:'Profile',who:['auto','Automatic'],
+     p:'One file every card reads from. Gaps are marked "to collect".',
+     summary:'NextCore reads what you sent and writes one profile. Every card reads from it, so a name, a date or a figure is typed once and matches everywhere. It also records which stage the client is in.',
+     steps:[['a','Read your notes and attachments'],['a','Check their website for company facts'],['a','Write client-profile.json'],['a','Mark gaps as "to collect"'],['a','Start stage 2: proposal and deck']],
      input:['Your notes and attachments','Their website'],
      output:['client-profile.json in the client folder'],
      check:['Every field has a source or is marked "to collect"'],
      extra:X.profile,
      skills:['nextcore','marketing-skills:customer-research'],tools:['Web search and page fetch','Google Drive'],people:['None, fully automatic']},
-    {id:'proposal',short:'Proposal',kicker:'Output 1 &#183; goes out first',title:'Sales Proposal',who:['you','You confirm prices'],mock:M.proposal,
+
+    {id:'proposal',stage:'02 Win the deal',icon:'plane',kicker:'Build',title:'Sales Proposal',short:'Proposal',who:['you','You confirm prices'],mock:M.proposal,
+     p:'Interactive Odoo-style proposal from the BIR CAS template.',
      summary:'An interactive proposal in the Odoo quotation style, copied from our BIR CAS proposal template and filled from the profile. It is the first thing the client sees.',
-     steps:[['a','Copy the BIR CAS proposal template'],['a','Fill name, services and timeline from the profile'],['a','Part 1: their services, animated, plus FAQ'],['a','Part 2: quote lines, options, payment plan'],['y','You confirm the prices'],['a','Part 3: terms, Accept and sign'],['a','Impeccable audit and hero check'],['a','Private link and PDF']],
+     steps:[['a','Copy the BIR CAS proposal template'],['a','Value and Why choose us in the intro'],['a','Part 1: their services, animated, plus FAQ'],['a','Part 2: quote lines, options, payment plan'],['y','You confirm the prices'],['a','Part 3: terms, Accept and sign'],['a','Impeccable audit and hero check'],['a','Private link and PDF']],
      input:['Client name and logo','Services and Odoo apps','Timeline and phases','Prices (you confirm)'],
      output:['proposal.html on a private link','PDF in 01. Sales Proposal'],
-     check:['Impeccable critique and audit','hero_check.py 0 errors','Prices only in Part 2','Never in the public template repo'],
+     check:['Impeccable critique and audit','hero_check.py 0 errors','Prices shown once, only in Part 2','Never in the public template repo'],
      skills:['nextcore-proposal','web-design-engineer','hero-section-design','impeccable','find-animation-opportunities','marketing-skills:copywriting','anthropic-skills:pdf'],
-     tools:['BIR CAS proposal template','Headless Chrome for PDF and checks','Private hosting (to decide)'],people:['You confirm the prices','Client accepts and signs online']},
-    {id:'data',short:'Data page',kicker:'Output 2 &#183; after they accept',title:'Data Gathering page',who:['client','Client fills'],mock:M.data,
-     summary:'A private page for this client only. It asks for every detail we still need and is already filled with what we know.',
-     steps:[['a','List the "to collect" fields'],['a','Group them: company, people, accounts, products, brand'],['a','Pre-fill what we already know'],['a','Add file drops: Form 2303, logo, price list'],['a','Phone test, every answer saves'],['c','Client fills it in'],['a','Answers update the profile and the SLA rebuilds']],
-     input:['"To collect" fields from the profile','What we already know'],
-     output:['data-gathering.html on a private link','Answers and files saved (place to decide)'],
-     check:['Opens on a phone','Every answer saves','No other client&#8217;s data'],
-     extra:X.asks,
-     skills:['nextcore-data-page','web-design-engineer','impeccable','marketing-skills:copywriting'],
-     tools:['Private hosting (to decide)','Odoo CRM record or Drive folder for answers (to decide)'],people:['Client fills it in','Our Odoo consultant reviews the answers']},
-    {id:'deck',short:'Deck',kicker:'Output 3 &#183; goes out with the proposal',title:'Short Presentation',who:['auto','Automatic'],mock:M.deck,
-     summary:'A short TechNext deck written for this client: their logo, their problems, and the Odoo apps that solve them.',
+     tools:['BIR CAS proposal template','Headless Chrome for PDF and checks','Private hosting (to decide)'],people:['You confirm the prices']},
+
+    {id:'deck',stage:'02 Win the deal',icon:'deck',kicker:'Build',title:'Short Presentation',short:'Deck',who:['auto','Automatic'],mock:M.deck,
+     p:'Six TechNext slides written for this client.',
+     summary:'A short TechNext deck written for this client: their logo, their problems, and the Odoo apps that solve them. It is built at the same time as the proposal and goes out with it.',
      steps:[['a','Pick the six slides'],['a','Write "what we heard" from the pain points'],['a','Match Odoo apps to their needs'],['a','NextSprint and timeline'],['a','Build the 1600x900 deck'],['a','Impeccable critique and audit'],['a','Share link and PDF']],
      input:['Logo and brand colours','Pain points','Odoo apps','Phases'],
      output:['1600x900 HTML deck on a share link','PDF in 03. Short Presentation'],
      check:['Impeccable critique and audit, re-scored after fixes','TechNext fact and copy rules'],
      extra:X.deck,
      skills:['technext-presentations','impeccable','find-animation-opportunities','marketing-skills:copywriting','anthropic-skills:pdf'],
-     tools:['technext-presentations repo (unlisted link)','Headless Chrome for the PDF'],people:['You review it before it goes out']},
-    {id:'sla',short:'SLA',kicker:'Output 4 &#183; after their answers',title:'Service Level Agreement',who:['you','You confirm figures'],mock:M.sla,
-     summary:'The newer 4-page A4 Proposal + SLA (Rev 1.1 format), filled from the profile. Compact and in TechNext branding.',
-     steps:[['a','Copy the Rev 1.1 template'],['a','Scope, phases and Gantt from the profile'],['a','Response times P1 to P4'],['a','Investment, every figure tagged Estimate'],['y','You confirm the figures'],['a','Page-fit check and PDF'],['a','Rebuilt with the client&#8217;s answers'],['c','Client signs']],
-     input:['Scope and phases','Users and Odoo apps','Figures (you confirm)','Answers from the Data Gathering page'],
+     tools:['technext-presentations repo (unlisted link)','Headless Chrome for the PDF'],people:['You review it in card 05']},
+
+    {id:'send-proposal',stage:'02 Win the deal',icon:'mail',kicker:'Send',title:'Review + send',short:'Send',who:['you','You approve + send'],
+     p:'Checks, your approval, then a Gmail draft you send.',
+     summary:'Nothing reaches the client until the proposal and deck pass their checks and you approve them. NextCore then writes the email; you press send.',
+     steps:[['a','Run the proposal and deck checks'],['a','Copy rules scan'],['a','One review link, both side by side'],['y','You approve or ask for changes'],['a','Gmail draft from hello@technext.asia with both links'],['y','You press send'],['a','Sent date saved for the follow-up clock']],
+     input:['Sales Proposal','Short Presentation'],
+     output:['Gmail draft with both links','Sent date in the profile'],
+     check:['Each output passed its own check','The copy rules below'],
+     extra:X.rules,
+     skills:['nextcore','impeccable','marketing-skills:copy-editing','ai-marketing-skills:de-ai-ify','marketing-skills:emails'],
+     tools:['Gmail connector (drafts only)','Google Drive'],people:['You approve and press send']},
+
+    {id:'accepted',stage:'02 Win the deal',gate:true,icon:'gate',kicker:'Client decision',title:'Accepted?',short:'Accepted?',who:['client','Client decides'],
+     outs:[['yes','Yes','data','Stage 3 starts: the Data Gathering page goes out'],['loop','Changes','proposal','The proposal is revised to the next Rev, then card 05 again'],['wait','No reply','follow-up','After 3 working days the reminders start']],
+     summary:'The client reads the proposal and decides. You tell NextCore what they said, and it starts the right card.',
+     steps:[['c','Client reads the proposal and deck'],['c','Client accepts online, asks for changes, or goes quiet'],['y','You tell NextCore: accepted, changes or no reply'],['a','NextCore starts the next card']],
+     input:['The client&#8217;s answer'],
+     output:['The next card starts'],
+     check:['Only you mark a deal as accepted'],
+     skills:['nextcore'],tools:['Proposal page: Accept and sign','Gmail (read replies)'],people:['Client decides','You confirm it to NextCore']},
+
+    {id:'follow-up',stage:'02 Win the deal',side:true,icon:'bell',kicker:'If no reply',title:'Follow-up',short:'Follow-up',who:['you','You send'],
+     p:'Polite reminder drafts on day 3, 7 and 14. You send them.',
+     summary:'When the client goes quiet, NextCore drafts short, polite reminders. You decide whether to send each one. The same card sends reminders for missing Data Gathering answers.',
+     steps:[['a','Day 3: short check-in draft'],['a','Day 7: second note with the deck link'],['y','You send or skip each one'],['a','A reply sends the flow back to the decision'],['a','Day 14: flag the deal to you as quiet']],
+     input:['Sent date','Proposal and deck links','Missing items (for card 09)'],
+     output:['Gmail reminder drafts'],
+     check:['Never sent automatically','Adviser voice, no pressure, no price talk'],
+     skills:['nextcore','marketing-skills:emails','ai-marketing-skills:de-ai-ify'],
+     tools:['Gmail connector (drafts only)'],people:['You send']},
+
+    {id:'data',stage:'03 Collect details',icon:'form',kicker:'Build + send',title:'Data Gathering page',short:'Data page',who:['client','Client fills'],mock:M.data,
+     p:'Private page for every detail we still need, sent once they accept.',
+     summary:'Once they accept, a private page asks for every detail we still need. It is already filled with what we know, so the client only adds what is missing.',
+     steps:[['a','List the "to collect" fields'],['a','Group them: company, people, accounts, products, brand'],['a','Pre-fill what we already know'],['a','Add file drops: Form 2303, logo, price list'],['a','Phone test, every answer saves'],['y','You approve; Gmail draft with the link; you send'],['c','Client fills it in']],
+     input:['"To collect" fields from the profile','What we already know'],
+     output:['data-gathering.html on a private link','Answers and files saved (place to decide)'],
+     check:['Opens on a phone','Every answer saves','No other client&#8217;s data'],
+     extra:X.asks,
+     skills:['nextcore-data-page','web-design-engineer','impeccable','marketing-skills:copywriting','marketing-skills:emails'],
+     tools:['Private hosting (to decide)','Odoo CRM record or Drive folder for answers (to decide)','Gmail connector (drafts only)'],people:['You approve and send the link','Client fills it in']},
+
+    {id:'answers',stage:'03 Collect details',gate:true,icon:'gate',kicker:'Client decision',title:'Answers complete?',short:'Answers?',who:['client','Client'],
+     outs:[['yes','Yes','profile-update','The answers go into the profile'],['wait','Missing items','follow-up','A reminder that lists only what is missing']],
+     summary:'When the client submits the page, NextCore checks the answers against the "to collect" list before anything else is built.',
+     steps:[['c','Client submits the page'],['a','Check every required field and file'],['a','List anything still missing'],['a','Route: profile update, or a reminder']],
+     input:['Answers and uploaded files'],
+     output:['Complete, or a list of missing items'],
+     check:['Required fields are set on the Data Gathering page'],
+     skills:['nextcore','nextcore-data-page'],tools:['Answer storage (to decide)'],people:['Client']},
+
+    {id:'profile-update',stage:'03 Collect details',icon:'sync',kicker:'Build',title:'Profile update',short:'Update',who:['you','You confirm changes'],
+     p:'Answers merged in. Changes to scope or users flagged to you.',
+     summary:'The answers go back into the client profile. Anything that changes the deal, such as more users, another branch or an extra app, is flagged to you before the SLA is built.',
+     steps:[['a','Merge the answers into client-profile.json'],['a','File the uploads in 02. Data Gathering'],['a','Compare with the accepted proposal'],['y','You confirm any change in scope or users'],['a','Start stage 4: the SLA']],
+     input:['Answers and files','The accepted proposal'],
+     output:['Updated client-profile.json','A list of changes against the proposal'],
+     check:['Every change against the proposal is shown to you'],
+     skills:['nextcore'],tools:['Google Drive'],people:['You confirm changes','Our Odoo consultant reads the answers']},
+
+    {id:'sla',stage:'04 Agree the service',icon:'doc',kicker:'Build',title:'Service Level Agreement',short:'SLA',who:['you','You confirm figures'],mock:M.sla,
+     p:'4-page A4 Proposal + SLA from the newer template.',
+     summary:'The 4-page A4 Proposal + SLA from our newer Sales Proposal + SLA template, filled from the updated profile. Compact and in TechNext branding.',
+     steps:[['a','Copy the Sales Proposal + SLA template'],['a','Value and Why choose us in the intro title'],['a','Scope by phase and Gantt'],['a','Response times P1 to P4'],['a','Investment shown once, tagged Estimate'],['y','You confirm the figures'],['a','Page-fit check and PDF']],
+     input:['Updated profile','Scope, phases, users, apps','Figures (you confirm)'],
      output:['&lt;Client&gt; - TechNext Proposal and Service Level Agreement Rev 1.x.pdf'],
-     check:['check.py: every page fits above the footer','Figures tagged Estimate','Odoo licence shown as paid to Odoo'],
+     check:['check.py: every page fits above the footer','Price shown once, tagged Estimate','Odoo licence shown as paid to Odoo','No cover facts row'],
      extra:X.pages,
      skills:['nextcore-sla','impeccable','marketing-skills:copy-editing','anthropic-skills:pdf'],
-     tools:['sla.template.html, build.py, check.py','Headless Chrome PDF and pymupdf previews'],people:['You confirm the figures','Client signs']},
-    {id:'social',short:'Social',kicker:'Output 5 &#183; goes out last',title:'Social posts + Nexi video',who:['client','Client OK first'],mock:M.social,
-     summary:'Welcome posts and a Nexi video about the new client&#8217;s project, each designed from scratch in TechNext branding. Nothing starts until the client says yes to their name and logo.',
-     steps:[['c','Client OKs their name and logo'],['a','One concept per post'],['a','Render 3:4 posts and a 9:16 reel'],['a','Nexi video: script, voice, captions, music'],['a','audit.py and the Nexi release gate'],['a','Captions for Facebook, Instagram, LinkedIn'],['y','You approve'],['a','Into the posting schedule']],
+     tools:['Sales Proposal + SLA template (Drive 02/25.)','build and check scripts','Headless Chrome PDF and pymupdf previews'],people:['You confirm the figures']},
+
+    {id:'send-sla',stage:'04 Agree the service',icon:'mail',kicker:'Send',title:'Review + send for signature',short:'Send SLA',who:['you','You approve + send'],
+     p:'Checks, your approval, then sent for signature.',
+     summary:'The SLA passes its checks, you approve it, and NextCore writes the email asking for signature. You press send.',
+     steps:[['a','Page-fit and copy checks'],['a','Review link'],['y','You approve or ask for changes'],['a','Gmail draft with the PDF attached'],['y','You press send'],['a','PDF filed in 04. Service Level Agreement']],
+     input:['The SLA PDF'],
+     output:['Gmail draft asking for signature'],
+     check:['The copy rules below'],
+     extra:X.rules,
+     skills:['nextcore','marketing-skills:copy-editing','marketing-skills:emails'],
+     tools:['Gmail connector (drafts only)','Google Drive'],people:['You approve and press send']},
+
+    {id:'signed',stage:'04 Agree the service',gate:true,icon:'gate',kicker:'Client decision',title:'Signed?',short:'Signed?',who:['client','Client signs'],
+     outs:[['yes','Signed','kickoff','Kick-off handover starts'],['yes','Signed','consent','At the same time, we ask if we may announce them'],['loop','Changes','sla','The SLA is revised to the next Rev, then card 12 again']],
+     summary:'The client signs the SLA or asks for changes. Signing starts two lanes at the same time: kick-off and the announcement ask.',
+     steps:[['c','Client reviews the SLA'],['c','Client signs, or asks for changes'],['y','You tell NextCore'],['a','NextCore starts both lanes, or the revision']],
+     input:['The client&#8217;s answer','Signed PDF'],
+     output:['Stage 5 starts, or a revision'],
+     check:['The signed PDF is filed before kick-off'],
+     skills:['nextcore'],tools:['Gmail (read replies)','Google Drive'],people:['Client signs','You confirm it to NextCore']},
+
+    {id:'consent',stage:'05 Kick off and announce',gate:true,icon:'gate',kicker:'Client decision',title:'OK to announce?',short:'Post OK?',who:['client','Client decides'],
+     outs:[['yes','Yes','social','Welcome posts and the Nexi video are made'],['stop','No','pack','Nothing is posted; the pack closes without posts']],
+     summary:'We only post about a client who says yes. NextCore drafts the ask, showing exactly what we would post; you send it.',
+     steps:[['a','Draft the ask: name, logo, what we would post'],['y','You send it'],['c','Client says yes or no'],['y','You tell NextCore']],
+     input:['Client name and logo','Post idea'],
+     output:['Yes or no, saved in the profile'],
+     check:['No post is made without a written yes'],
+     skills:['nextcore','marketing-skills:emails'],tools:['Gmail connector (drafts only)'],people:['Client decides','You send the ask']},
+
+    {id:'social',stage:'05 Kick off and announce',icon:'video',kicker:'Build + post',title:'Social posts + Nexi video',short:'Social',who:['you','You approve'],mock:M.social,
+     p:'Welcome posts and a Nexi video about their project.',
+     summary:'Welcome posts and a Nexi video about the new client&#8217;s project, each designed from scratch in TechNext branding.',
+     steps:[['a','One concept per post'],['a','Render 3:4 posts and a 9:16 reel'],['a','Nexi video: script, voice, captions, music'],['a','audit.py and the Nexi release gate'],['a','Captions for Facebook, Instagram, LinkedIn'],['y','You approve'],['a','Into the posting schedule']],
      input:['Name and logo (with their OK)','Project and Odoo apps','Industry'],
      output:['3:4 posts, 2160x2880 PNG','9:16 reel, 1080x1920 MP4','Nexi video, 16:9 MP4','captions.txt'],
      check:['audit.py 0 errors','Nexi release gate passed','TechNext logo top-left, Odoo top-right'],
      skills:['technext-social-posts','nexi-video','nexi-character','marketing-skills:social','ai-marketing-skills:de-ai-ify','marketing-team'],
-     tools:['Headless Chrome renderer','Nexi renderer','Buffer'],people:['Client OKs name and logo','You approve']},
-    {id:'review',short:'Review',kicker:'Step 4 &#183; Checks, then your review',title:'Checks + your review',who:['you','You approve'],
-     summary:'Each output passes its own check and the copy rules before you see it. Then you get one review link with all five side by side.',
-     steps:[['a','Each card runs its own check'],['a','Copy rules scan on all five'],['a','One review link, five outputs side by side'],['y','You approve or ask for changes'],['a','Only the changed part rebuilds']],
-     input:['The five outputs'],
-     output:['Your approval, card by card'],
-     check:['The copy rules below'],
-     extra:X.rules,
-     skills:['nextcore','impeccable','marketing-skills:copy-editing','ai-marketing-skills:de-ai-ify'],
-     tools:['Review page with all five outputs'],people:['You']},
-    {id:'deliver',short:'Deliver',kicker:'Step 5 &#183; Deliver',title:'Client pack',who:['auto','Automatic'],
-     summary:'Everything is filed as one client pack on the Marketing drive and released to the client in order.',
-     steps:[['a','File into 01. Client Folder\\NN. &lt;Client&gt;'],['a','md5 check every copy'],['a','Gmail draft from hello@technext.asia'],['y','You press send'],['a','Release in order: proposal + deck, data page, SLA, social']],
-     input:['Approved outputs'],
-     output:['Numbered client folder','One Gmail draft per release'],
+     tools:['Headless Chrome renderer','Nexi renderer','Buffer'],people:['You approve']},
+
+    {id:'kickoff',stage:'05 Kick off and announce',icon:'flag',kicker:'Hand over',title:'Kick-off handover',short:'Kick-off',who:['you','You confirm the date'],
+     p:'Kick-off brief and invite for the implementation team.',
+     summary:'The signed SLA, the profile and the answers become one kick-off brief for the implementation team, with a kick-off invite ready to send.',
+     steps:[['a','Kick-off brief: scope, phases, users, contacts, files'],['a','Draft the kick-off email and calendar invite'],['y','You confirm the date with the client'],['a','Invite goes out after your go'],['y','The team sets up the Odoo project']],
+     input:['Signed SLA','Updated profile','Data Gathering answers'],
+     output:['Kick-off brief PDF in 06. Kick-off','Calendar invite (after your go)'],
+     check:['The brief matches the signed scope'],
+     skills:['nextcore','anthropic-skills:pdf'],tools:['Google Calendar (only after your go)','Gmail connector (drafts only)','Google Drive'],people:['You confirm the date','Odoo project lead']},
+
+    {id:'pack',stage:'06 Close',icon:'folder',kicker:'Close',title:'Client pack',short:'Pack',who:['auto','Automatic'],
+     p:'Folder checked, old revisions moved, pack marked done.',
+     summary:'When kick-off is booked and the posts are scheduled or skipped, NextCore closes the pack. Files were filed at every stage; this card checks they are all there.',
+     steps:[['a','Check every numbered folder is complete'],['a','Move old revisions to 00. old'],['a','md5 check every copy'],['a','Mark the pack done in the profile']],
+     input:['Everything filed in stages 1 to 5'],
+     output:['A complete numbered client folder'],
      check:['md5 of every Drive copy matches the source'],
      extra:X.tree,
-     skills:['nextcore'],tools:['Google Drive','Gmail connector (drafts only)'],people:['You press send']}
+     skills:['nextcore'],tools:['Google Drive'],people:['None, fully automatic']}
   ];
-  var byId={}; CARDS.forEach(function(c,i){c.i=i;byId[c.id]=c;});
+  var byId={};
+  CARDS.forEach(function(c,i){c.i=i;c.no=(i<9?'0':'')+(i+1);byId[c.id]=c;});
 
-  /* ---------------- render helpers ---------------- */
+  /* ---------------- overview cards ---------------- */
+  function icon(n){return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">'+IC[n]+'</svg>';}
+  function skillCount(c){var n=c.skills.length,nb=c.skills.filter(function(k){return SK[k].build;}).length;return n+' skill'+(n>1?'s':'')+(nb?' &#183; '+nb+' new':'');}
+  function cardHTML(c){
+    var mid=c.outs?'<span class="outs">'+c.outs.map(function(o){return '<span class="out o-'+o[0]+'"><span><b>'+o[1]+'</b> &#8594; '+byId[o[2]].short+'</span></span>';}).join('')+'</span>':'<span class="c-p">'+c.p+'</span>';
+    return '<button class="card'+(c.gate?' gate':'')+(c.side?' side':'')+'" type="button" data-open="'+c.id+'" aria-controls="drawer" aria-expanded="false">'+
+      '<span class="c-top">'+icon(c.icon)+'<span class="c-k">'+c.kicker+'</span><span class="c-no">'+c.no+'</span></span>'+
+      '<span class="c-t">'+c.title+'</span>'+mid+
+      '<span class="c-foot"><span class="who sm '+c.who[0]+'">'+c.who[1]+'</span><span class="c-sk">'+skillCount(c)+'</span>'+GO+'</span></button>';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-slot]'),function(s){var c=byId[s.getAttribute('data-slot')]; if(c) s.outerHTML=cardHTML(c);});
+
+  /* ---------------- panel render ---------------- */
   function list(a){return '<ul class="dl">'+a.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';}
   function skillList(names){return '<ul class="sk-list">'+names.map(function(n){var s=SK[n];return '<li class="sk'+(s.build?' build':'')+'"><span class="sk-top"><code>'+n+'</code><span class="sk-st">'+(s.build?'To build':'Have it')+'</span></span><span class="sk-w">'+s.what+'</span></li>';}).join('')+'</ul>';}
   function render(c){
     var nb=c.skills.filter(function(n){return SK[n].build;}).length;
     var h='<div class="d-sum'+(c.mock?' has-mock':'')+'"><p class="d-lede">'+c.summary+'</p>'+(c.mock?'<div class="d-mock">'+c.mock+'</div>':'')+'</div>';
-    h+='<section class="d-sec"><h3 class="d-h">How it is built<span class="note">'+c.steps.length+' steps</span></h3><ol class="steps">'+
+    if(c.outs){
+      h+='<section class="d-sec"><h3 class="d-h">Outcomes</h3><ul class="outs-d">'+c.outs.map(function(o){var t=byId[o[2]];return '<li><span class="out o-'+o[0]+'">'+o[1]+'</span><button type="button" class="o-go" data-open="'+t.id+'">'+t.no+' '+t.title+' &#8594;</button><span class="o-w">'+o[3]+'</span></li>';}).join('')+'</ul></section>';
+    }
+    h+='<section class="d-sec"><h3 class="d-h">How it works<span class="note">'+c.steps.length+' steps</span></h3><ol class="steps">'+
        c.steps.map(function(s){return '<li class="w-'+s[0]+'"><span class="st-n" aria-hidden="true"></span><div><p class="st-t">'+s[1]+'</p>'+(s[0]==='y'?'<span class="st-who">You</span>':s[0]==='c'?'<span class="st-who">Client</span>':'')+'</div></li>';}).join('')+'</ol></section>';
     h+='<section class="d-sec"><h3 class="d-h">Data</h3><div class="d-data"><div class="dd"><p class="dd-k">Takes in</p>'+list(c.input)+'</div><div class="dd"><p class="dd-k">Gives out</p>'+list(c.output)+'</div><div class="dd"><p class="dd-k">Checked by</p>'+list(c.check)+'</div></div>'+(c.extra?'<div class="d-extra">'+c.extra+'</div>':'')+'</section>';
     h+='<section class="d-sec"><h3 class="d-h">Skills needed<span class="note">'+c.skills.length+' Claude skill'+(c.skills.length>1?'s':'')+(nb?', '+nb+' to build':'')+'</span></h3><div class="d-skills"><div><p class="dd-k">Claude skills</p>'+skillList(c.skills)+'</div><div class="dd"><p class="dd-k">Tools and connectors</p>'+list(c.tools)+'</div><div class="dd"><p class="dd-k">People</p>'+list(c.people)+'</div></div></section>';
     return h;
   }
 
-  /* skill counts on the cards */
-  Array.prototype.forEach.call(document.querySelectorAll('[data-skills]'),function(el){
-    var c=byId[el.getAttribute('data-skills')]; if(!c) return;
-    var n=c.skills.length, nb=c.skills.filter(function(k){return SK[k].build;}).length;
-    el.innerHTML=n+' skill'+(n>1?'s':'')+(nb?' &#183; '+nb+' new':'');
-  });
-
   /* ---------------- skills map ---------------- */
   (function(){
     var t=document.getElementById('map-t'); if(!t) return;
     function uses(n){return CARDS.filter(function(c){return c.skills.indexOf(n)>=0;}).length;}
     var names=Object.keys(SK).sort(function(a,b){return ((SK[b].build?1:0)-(SK[a].build?1:0))||(uses(b)-uses(a))||a.localeCompare(b);});
-    var h='<thead><tr><th scope="col">Claude skill</th>'+CARDS.map(function(c){return '<th scope="col"><button type="button" class="m-col" data-open="'+c.id+'">'+c.short+'</button></th>';}).join('')+'<th scope="col">Cards</th></tr></thead><tbody>';
+    var h='<thead><tr><th scope="col">Claude skill</th>'+CARDS.map(function(c){return '<th scope="col"><button type="button" class="m-col" data-open="'+c.id+'"><b>'+c.no+'</b>'+c.short+'</button></th>';}).join('')+'<th scope="col">Cards</th></tr></thead><tbody>';
     names.forEach(function(n){
       var b=SK[n].build;
       h+='<tr class="'+(b?'is-build':'')+'"><th scope="row"><span class="m-skill"><code>'+n+'</code><span class="sk-st">'+(b?'To build':'Have it')+'</span></span></th>'+
-        CARDS.map(function(c){return c.skills.indexOf(n)>=0?'<td><span class="dot"></span><span class="sr">Used by '+c.short+'</span></td>':'<td></td>';}).join('')+
+        CARDS.map(function(c){return c.skills.indexOf(n)>=0?'<td><span class="dot"></span><span class="sr">Used by '+c.no+' '+c.short+'</span></td>':'<td></td>';}).join('')+
         '<td class="m-n">'+uses(n)+'</td></tr>';
     });
     t.innerHTML=h+'</tbody>';
     var nb=names.filter(function(n){return SK[n].build;}).length;
     var s=document.getElementById('map-sum');
-    if(s) s.innerHTML=(names.length-nb)+' skills we already have &#183; '+nb+' new NextCore skills to build. Click a column to open that card.';
+    if(s) s.innerHTML=CARDS.length+' cards &#183; '+(names.length-nb)+' skills we already have &#183; '+nb+' new NextCore skills to build. Click a column to open that card.';
   })();
 
   /* ---------------- detail panel ---------------- */
@@ -696,7 +855,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     var c=byId[id]; if(!c) return;
     if(!current) lastFocus=from||document.activeElement;
     current=c;
-    kEl.innerHTML=c.kicker; tEl.innerHTML=c.title; wEl.className='who sm '+c.who[0]; wEl.innerHTML=c.who[1];
+    kEl.innerHTML='Card '+c.no+' &#183; Stage '+c.stage+' &#183; '+c.kicker; tEl.innerHTML=c.title; wEl.className='who sm '+c.who[0]; wEl.innerHTML=c.who[1];
     body.innerHTML=render(c); body.scrollTop=0;
     drawer.hidden=false; scrim.hidden=false; setW(w); mark(id);
     bPrev.disabled=c.i===0; bNext.disabled=c.i===CARDS.length-1;
@@ -740,31 +899,10 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     else if(k==='Home'){setW(MINW,true);e.preventDefault();}
     else if(k==='End'){setW(vw(),true);e.preventDefault();}
   });
+  window.addEventListener('resize',function(){if(current) setW(w);});
 
   function fromHash(){var id=(location.hash||'').slice(1); if(byId[id]) open(id); else if(current&&!id) close();}
   window.addEventListener('hashchange',fromHash);
-
-  /* ---------------- loop arrow (wide screens) ---------------- */
-  var flow=document.getElementById('flow'), svg=document.getElementById('loop'), path=document.getElementById('loop-path'), tag=document.getElementById('loop-tag');
-  var dataCard=document.getElementById('c-data'), prof=document.getElementById('c-profile');
-  var mq=window.matchMedia('(min-width: 1240px)');
-  function draw(){
-    if(!flow||!svg||!dataCard||!prof) return;
-    if(!mq.matches){svg.setAttribute('hidden','');tag.hidden=true;return;}
-    svg.removeAttribute('hidden'); tag.hidden=false;
-    var f=flow.getBoundingClientRect(), a=dataCard.getBoundingClientRect(), p=prof.getBoundingClientRect();
-    svg.setAttribute('width',f.width); svg.setAttribute('height',f.height); svg.setAttribute('viewBox','0 0 '+f.width+' '+f.height);
-    var x=a.left-f.left+28, y1=a.top-f.top, py=p.top-f.top+p.height/2, px=p.left-f.left-4, r=10;
-    var d=(x<px-r)?('M'+x+' '+y1+' V'+(py+r)+' Q'+x+' '+py+' '+(x+r)+' '+py+' H'+px):('M'+x+' '+y1+' V'+(p.bottom-f.top+6));
-    path.setAttribute('d',d);
-    var midY=(p.bottom+a.top)/2-f.top;
-    tag.style.left=Math.max(0,x-12-tag.offsetWidth)+'px'; tag.style.top=(midY-tag.offsetHeight/2)+'px';
-  }
-  draw();
-  if(window.ResizeObserver){new ResizeObserver(draw).observe(flow);}
-  window.addEventListener('resize',function(){draw(); if(current) setW(w);});
-  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(draw);}
-
   fromHash();
 })();
 </script>
