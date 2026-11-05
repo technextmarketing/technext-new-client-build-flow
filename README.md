@@ -1,8 +1,13 @@
 # NextCore
 
-TechNext internal project (plan v4, 5 Nov 2026): a new client goes through six stages and 17 cards - Intake, Win the deal (Sales Proposal + Short Presentation, review + send, Accepted? decision, Follow-up), Collect details (Data Gathering page, Answers complete? decision, Profile update), Agree the service (SLA, review + send, Signed? decision), Kick off and announce (OK to announce? decision, Social posts + Nexi video, Kick-off handover) and Close (Client pack).
+TechNext internal project (plan v5, 5 Nov 2026): a production system for client materials. Client information goes in once, becomes one client profile, and NextCore builds every material from it automatically:
 
-Each card opens a panel with its own flowchart, data and the Claude skills it needs; drag the panel edge to widen it. Deep links: #trigger #profile #proposal #deck #send-proposal #accepted #follow-up #data #answers #profile-update #sla #send-sla #signed #consent #social #kickoff #pack
+1. Input: Client information, Client profile (with brand kit), Build order
+2. Build materials (one builder each, queue order): Sales Proposal, Data Gathering page, Service Level Agreement, Presentation, Social media posts, Nexi video
+3. Check: Quality checks, Your review
+4. Deliver: Client material pack, Rebuild on update
+
+Each card opens a panel with its build pipeline, data (reads, template, produces, checked by) and the Claude skills, tools and people it needs; drag the panel edge to widen it. Deep links: #info #profile #order #proposal #data #sla #deck #social #nexi #qa #review #pack #rebuild
 
 Live: https://technextmarketing.github.io/technext-new-client-build-flow/
 
