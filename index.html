@@ -4,22 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta name="description" content="How TechNext turns new client information into a sales proposal, a data gathering page, a short presentation, an SLA, and social posts plus a Nexi video.">
-<title>New Client Build Flow</title>
+<meta name="description" content="NextCore: how TechNext turns new client information into a sales proposal, a data gathering page, a short presentation, an SLA, and social posts plus a Nexi video.">
+<title>NextCore Build Flow</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one centred spine, top to bottom. Trigger -> one client profile -> fan-out to four build lanes -> checks + owner review -> client pack. Light only (TechNext site.css tokens). */
+/* Layout: overview = one centred spine of simple cards (trigger -> profile -> 5 outputs -> review -> deliver).
+   Clicking a card opens a right-hand panel with that card's own flowchart, data and skills; the panel edge drags wider,
+   and a container query turns the card flowchart into a horizontal row once the panel is wide. Light only (TechNext site.css tokens). */
 :root{
   --blue:#3167CA; --blue-700:#1E4691; --blue-300:#6FA0F5; --blue-100:#DDE7F8; --blue-050:#EAF0FB;
   --ink:#1F1F3D; --body:#4C4C63; --muted:#8888A0; --line:#E7E4E9; --alt:#FAF9FB; --paper:#FFFFFF;
   --ok:#137A4A; --ok-100:#BFE3CD; --ok-050:#E8F5EE;
   --amber:#A96B00; --amber-100:#F1DDB5; --amber-050:#FDF6E9;
-  --red:#D93A30; --odoo:#714B67;
-  --tl-r:#F26B5E; --tl-y:#F5BF4F; --tl-g:#5FC454;
+  --odoo:#714B67; --tl-r:#F26B5E; --tl-y:#F5BF4F; --tl-g:#5FC454;
   --grid:rgba(49,103,202,.045);
   --f-head:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
   --f-body:"Inter","Segoe UI",system-ui,sans-serif;
@@ -31,6 +32,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{
   margin:0; background-color:var(--alt); color:var(--body);
   font:400 15px/1.55 var(--f-body);
@@ -41,65 +43,183 @@ body{
   padding-block:40px 56px;
 }
 .page{max-width:1320px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- header ---------- */
-.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 32px;flex-wrap:wrap;margin-bottom:36px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 32px;flex-wrap:wrap;margin-bottom:34px}
 .top > div{min-width:0}
 .eyebrow{font:600 12px/1 var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin:0}
-h1{font:800 clamp(28px,4.2vw,46px)/1.08 var(--f-head);color:var(--ink);letter-spacing:-.02em;margin:12px 0 12px;text-wrap:balance;max-width:21ch}
-.lede{max-width:62ch;margin:0;font-size:16px}
-.legend{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
-.legend-h{font:600 11px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.brand{display:flex;align-items:center;gap:14px;margin:12px 0 6px}
+.brand svg{width:44px;height:44px;fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spacing:-.03em;margin:0}
+.tagline{font:700 clamp(18px,2.2vw,24px)/1.25 var(--f-head);color:var(--ink);margin:4px 0 10px;text-wrap:balance}
+.lede{max-width:64ch;margin:0;font-size:16px}
+.hint{display:flex;gap:8px;align-items:center;margin:14px 0 0;font-size:14px;color:var(--blue-700)}
+.hint svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.legend{display:grid;gap:10px;align-content:end}
+.legend-h{font:600 11px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
 .legend-row{display:flex;gap:8px;flex-wrap:wrap}
 
 .who{display:inline-flex;align-items:center;gap:7px;font:600 12px/1.2 var(--f-head);padding:7px 11px;border-radius:999px;border:1px solid;white-space:nowrap}
 .who::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.who.sm{font-size:11.5px;padding:5px 9px;gap:6px}
 .who.auto{color:var(--blue-700);background:var(--blue-050);border-color:var(--blue-100)}
 .who.you{color:var(--amber);background:var(--amber-050);border-color:var(--amber-100)}
 .who.client{color:var(--ok);background:var(--ok-050);border-color:var(--ok-100)}
-.who.auto::before{animation:pulse 2.4s ease-in-out infinite}
+.sk-chip{display:inline-flex;align-items:center;font:500 12px/1 var(--f-mono);padding:7px 10px;border-radius:8px;color:var(--blue-700);background:var(--blue-050);border:1px solid var(--blue-100)}
+.sk-chip.build{color:var(--amber);background:var(--amber-050);border:1px dashed var(--amber)}
 
-/* ---------- flow + connectors ---------- */
+/* ---------- overview flow ---------- */
 .flow{position:relative}
-.spine{width:2px;height:44px;margin:0 auto;position:relative;
-  background:linear-gradient(var(--blue-300) 55%,transparent 0) 0 0/2px 9px;
-  animation:flow 0.9s linear infinite}
+.row{display:flex;justify-content:center}
+.spine{width:2px;height:40px;margin:0 auto;position:relative;
+  background:linear-gradient(var(--blue-300) 55%,transparent 0) 0 0/2px 9px;animation:flow .9s linear infinite}
 .spine::after{content:"";position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);
   border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--blue)}
-.spine.short{height:30px}
-.stage-pill{display:table;margin:0 auto;max-width:100%;text-align:center;
-  font:700 13px/1.3 var(--f-head);color:var(--paper);background:var(--blue);
-  padding:10px 18px;border-radius:999px;box-shadow:var(--shadow)}
+.spine.short{height:28px}
+.stage-pill{display:table;margin:0 auto;max-width:100%;text-align:center;font:700 13px/1.3 var(--f-head);color:var(--paper);background:var(--blue);padding:10px 18px;border-radius:999px;box-shadow:var(--shadow)}
 
-.node{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);padding:22px 24px;margin-inline:auto;position:relative}
-.node-h{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
-.node-h .who{margin-left:auto}
-.node-h > div{min-width:0;flex:1 1 260px}
-.ico{width:28px;height:28px;flex:none;fill:none;stroke:var(--blue);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-top:2px}
-.step{font:600 11.5px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
-h2{font:700 21px/1.25 var(--f-head);color:var(--ink);margin:0;letter-spacing:-.01em;text-wrap:balance}
-h3{font:700 18px/1.25 var(--f-head);color:var(--ink);margin:0;text-wrap:balance}
-.node p.txt{margin:12px 0 0;max-width:64ch}
+.card{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);
+  padding:16px 16px 14px;display:flex;flex-direction:column;gap:7px;position:relative;min-width:0;width:100%;
+  transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
+.card:hover{border-color:var(--blue-300);box-shadow:var(--shadow);transform:translateY(-2px)}
+.card:focus-visible{outline:3px solid var(--blue-300);outline-offset:3px}
+.card[aria-expanded="true"]{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-100),var(--shadow)}
+.node-card{width:min(100%,460px)}
+.c-top{display:flex;align-items:center;gap:10px}
+.ico{width:26px;height:26px;flex:none;fill:none;stroke:var(--blue);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.c-k{font:600 11px/1.25 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.c-t{font:700 18px/1.25 var(--f-head);color:var(--ink);text-wrap:balance}
+.c-p{font-size:14px;color:var(--body)}
+.c-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.c-sk{font:600 11.5px/1 var(--f-head);color:var(--blue-700);padding:6px 9px;border-radius:999px;border:1px dashed var(--blue-300);white-space:nowrap}
+.c-go{width:18px;height:18px;margin-left:auto;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease;flex:none}
+.card:hover .c-go{transform:translateX(3px)}
+.card.first{border-color:var(--blue-100);box-shadow:var(--shadow)}
 
-/* step 1 */
-.n-trigger{max-width:740px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.chip{font:500 13px/1.2 var(--f-body);padding:8px 12px;border-radius:var(--r-s);background:var(--alt);border:1px solid var(--line);color:var(--ink)}
-.say{margin-top:14px;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;border:1px solid var(--blue-100);background:var(--blue-050);border-radius:var(--r-m);padding:11px 14px}
+.lanes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;position:relative;padding-block:22px}
+.lanes::before,.lanes::after{content:"";position:absolute;left:calc((100% - 72px) / 10);right:calc((100% - 72px) / 10);height:2px;background:var(--blue-300)}
+.lanes::before{top:0} .lanes::after{bottom:0}
+.lanes .card::before,.lanes .card::after{content:"";position:absolute;left:50%;width:2px;height:22px;margin-left:-1px;background:var(--blue-300)}
+.lanes .card::before{top:-23px} .lanes .card::after{bottom:-23px}
+.lanes .card:hover{transform:none}
+
+.loop-svg{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.loop-svg path.line{fill:none;stroke:var(--ok);stroke-width:2;stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
+.loop-svg marker path{fill:var(--ok)}
+.loop-tag{position:absolute;margin:0;max-width:260px;font:600 12.5px/1.35 var(--f-head);color:var(--ok);background:var(--ok-050);border:1px solid var(--ok-100);border-radius:999px;padding:7px 12px}
+
+/* ---------- skills map ---------- */
+.map{margin-top:44px}
+.map-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 24px;flex-wrap:wrap;margin-bottom:14px}
+.map-head h2{font:700 22px/1.2 var(--f-head);color:var(--ink);margin:0}
+.map-head p{margin:0;font-size:14px}
+.map-scroll{position:relative;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-l);background:var(--paper)}
+.map-t{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;font-size:13px}
+.map-t th,.map-t td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center}
+.map-t tbody tr:last-child th,.map-t tbody tr:last-child td{border-bottom:0}
+.map-t thead th{font:600 11px/1.2 var(--f-head);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--alt)}
+.map-t th[scope="row"],.map-t thead th:first-child{text-align:left;position:sticky;left:0;background:var(--paper);z-index:1;min-width:270px}
+.map-t thead th:first-child{background:var(--alt)}
+.m-skill{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.m-skill code{font:500 12.5px/1.3 var(--f-mono);color:var(--ink)}
+.m-col{appearance:none;border:0;background:none;font:inherit;color:var(--blue-700);cursor:pointer;padding:5px 7px;border-radius:6px;text-transform:inherit;letter-spacing:inherit;white-space:nowrap}
+.m-col:hover{background:var(--blue-050)}
+.m-col:focus-visible{outline:2px solid var(--blue-300);outline-offset:1px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--blue);vertical-align:middle}
+.is-build .dot{background:var(--amber)}
+.m-n{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600}
+.map-t tbody tr:hover td,.map-t tbody tr:hover th{background:var(--blue-050)}
+.sk-st{font:600 10px/1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;color:var(--blue-700);background:var(--blue-050);border:1px solid var(--blue-100);padding:3px 6px;border-radius:5px;flex:none;white-space:nowrap}
+.is-build .sk-st,.sk.build .sk-st{color:var(--amber);background:var(--amber-050);border-color:var(--amber-100)}
+
+/* ---------- open decisions + footer ---------- */
+.decide{max-width:980px;margin:32px auto 0;padding:18px 22px;border:1px dashed var(--amber-100);border-radius:var(--r-l);background:var(--paper)}
+.decide h2{font:700 16px/1.3 var(--f-head);color:var(--ink);margin:0}
+.decide ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+.decide li::marker{color:var(--amber)}
+.foot{max-width:980px;margin:22px auto 0;font-size:12.5px;color:var(--muted);text-align:center}
+
+/* ---------- detail panel ---------- */
+.scrim{position:fixed;inset:0;background:rgba(31,31,61,.32);z-index:39;display:none}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:var(--dw,640px);max-width:100%;z-index:40;background:var(--paper);
+  border-left:1px solid var(--line);box-shadow:-28px 0 56px -28px rgba(31,31,61,.35);display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px);
+  animation:slidein .28s cubic-bezier(.2,.8,.2,1)}
+.grip{position:absolute;left:-7px;top:0;bottom:0;width:14px;cursor:ew-resize;display:grid;place-items:center;touch-action:none;z-index:2}
+.grip span{width:5px;height:56px;border-radius:3px;background:var(--blue-100);border:1px solid var(--blue-300);transition:background .2s,height .2s}
+.grip:hover span,.grip:focus-visible span,.resizing .grip span{background:var(--blue);height:84px}
+.grip:focus-visible{outline:none}
+.resizing,.resizing *{cursor:ew-resize!important;user-select:none}
+.resizing .drawer{animation:none}
+.dhead{display:flex;align-items:flex-start;gap:12px 16px;flex-wrap:wrap;padding:20px 24px 16px;border-bottom:1px solid var(--line);background:var(--paper)}
+.dhead-t{flex:1 1 240px;min-width:0}
+.dhead-t .c-k{display:block;margin-bottom:6px}
+.dhead h2{font:800 24px/1.2 var(--f-head);color:var(--ink);margin:0 0 8px;letter-spacing:-.01em;outline:none;text-wrap:balance}
+.dtools{display:flex;gap:6px;flex-wrap:wrap}
+.ib{appearance:none;font:600 13px/1 var(--f-head);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;height:36px;min-width:36px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.ib:hover{background:var(--alt);border-color:var(--blue-100)}
+.ib:focus-visible{outline:3px solid var(--blue-300);outline-offset:2px}
+.ib:disabled{opacity:.4;cursor:default}
+.ib svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dbody{flex:1;overflow:auto;padding:22px 24px 32px;container:dbody / inline-size;overscroll-behavior:contain}
+.d-sum{display:grid;gap:18px;align-items:start}
+.d-lede{margin:0;font-size:16px;color:var(--ink);max-width:62ch}
+.d-mock{width:min(100%,340px)}
+.d-sec{margin-top:28px}
+.d-h{font:700 13px/1.2 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.d-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.d-h .note{font:500 12px/1.2 var(--f-body);letter-spacing:0;text-transform:none;color:var(--blue-700)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;counter-reset:st}
+.steps li{counter-increment:st;position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:start;padding-bottom:14px;min-width:0}
+.steps li:last-child{padding-bottom:0}
+.st-n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 13px/1 var(--f-head);background:var(--blue-050);color:var(--blue-700);border:1px solid var(--blue-100);position:relative;z-index:1}
+.st-n::before{content:counter(st)}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:15px;top:32px;bottom:0;width:2px;background:var(--blue-100)}
+.w-y .st-n{background:var(--amber-050);color:var(--amber);border-color:var(--amber-100)}
+.w-c .st-n{background:var(--ok-050);color:var(--ok);border-color:var(--ok-100)}
+.st-t{margin:5px 0 0;color:var(--ink);font-size:14.5px;font-weight:500}
+.st-who{display:inline-block;margin-top:5px;font:600 10.5px/1 var(--f-head);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:5px}
+.w-y .st-who{color:var(--amber);background:var(--amber-050)}
+.w-c .st-who{color:var(--ok);background:var(--ok-050)}
+
+.d-data{display:grid;gap:12px}
+.dd{border:1px solid var(--line);border-radius:var(--r-m);padding:14px 16px;background:var(--alt);min-width:0}
+.dd-k{font:700 12px/1.2 var(--f-head);color:var(--ink);margin:0 0 8px}
+.dl{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px;color:var(--ink)}
+.dl li{overflow-wrap:anywhere}
+.d-extra{margin-top:14px}
+.d-skills{display:grid;gap:18px}
+.d-skills > div{min-width:0}
+.sk-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.sk{border:1px solid var(--blue-100);background:var(--blue-050);border-radius:10px;padding:9px 11px;display:grid;gap:4px;min-width:0}
+.sk.build{border:1px dashed var(--amber);background:var(--amber-050)}
+.sk-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.sk code{font:500 12.5px/1.3 var(--f-mono);color:var(--ink);overflow-wrap:anywhere}
+.sk-w{font-size:13px;color:var(--body)}
+
+@container dbody (min-width: 640px){
+  .d-sum.has-mock{grid-template-columns:minmax(0,1fr) 300px}
+  .d-data{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@container dbody (min-width: 860px){
+  .steps{display:flex;gap:30px;overflow-x:auto;padding:4px 2px 12px}
+  .steps li{flex:1 0 140px;grid-template-columns:1fr;gap:10px;padding:14px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--alt)}
+  .steps li:last-child{padding-bottom:14px}
+  .steps li:not(:last-child)::after{left:auto;right:-26px;top:30px;bottom:auto;width:18px;height:2px;background:var(--blue-300)}
+  .steps li:not(:last-child)::before{content:"";position:absolute;right:-29px;top:26px;border-left:7px solid var(--blue);border-top:5px solid transparent;border-bottom:5px solid transparent}
+  .st-t{margin-top:0}
+  .d-skills{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr)}
+  .sk-list{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+}
+
+/* bits shown inside the panel */
+.say{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;border:1px solid var(--blue-100);background:var(--blue-050);border-radius:var(--r-m);padding:11px 14px}
 .say-k{font:600 11px/1 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--blue-700)}
 .say code{font:500 13px/1.45 var(--f-mono);color:var(--ink);min-width:0;overflow-wrap:anywhere}
 .caret{display:inline-block;width:2px;height:15px;background:var(--blue);vertical-align:-3px;margin-left:3px;animation:blink 1.1s steps(1) infinite}
-
-/* step 2 */
-.n-profile{max-width:900px;border-color:var(--blue-100);box-shadow:var(--shadow)}
-.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:24px;margin-top:6px;align-items:start}
-.cols > *{min-width:0}
-.holds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 0;padding:0;list-style:none}
-.holds li{font:500 13px/1.35 var(--f-body);color:var(--ink);padding:8px 10px;border-radius:var(--r-s);background:var(--alt);border:1px solid var(--line)}
-.gap-note{margin:14px 0 0;font-size:13.5px;color:var(--amber);display:flex;gap:8px;align-items:flex-start}
-.gap-note svg{width:16px;height:16px;flex:none;margin-top:2px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-
-.win{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;background:var(--paper);margin-top:4px}
+.win{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;background:var(--paper)}
 .win-bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--alt);border-bottom:1px solid var(--line);font:500 12px/1 var(--f-mono);color:var(--muted)}
 .win-bar i{width:9px;height:9px;border-radius:50%;flex:none}
 .win-bar i:nth-child(1){background:var(--tl-r)} .win-bar i:nth-child(2){background:var(--tl-y)} .win-bar i:nth-child(3){background:var(--tl-g)}
@@ -108,29 +228,10 @@ h3{font:700 18px/1.25 var(--f-head);color:var(--ink);margin:0;text-wrap:balance}
 pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--ink);overflow-x:auto}
 .code .k{color:var(--blue-700)} .code .s{color:var(--ok)} .code .n{color:var(--blue)}
 .code .todo{color:var(--amber);background:var(--amber-050);border-radius:4px;padding:0 3px}
-
-/* step 3 lanes */
-.lanes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;position:relative;padding-block:22px}
-.lanes::before,.lanes::after{content:"";position:absolute;left:calc((100% - 72px) / 10);right:calc((100% - 72px) / 10);height:2px;background:var(--blue-300)}
-.lane.first{border-color:var(--blue-100);box-shadow:var(--shadow)}
-.lanes::before{top:0} .lanes::after{bottom:0}
-.lane{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);padding:18px 18px 16px;display:flex;flex-direction:column;gap:14px;position:relative;min-width:0}
-.lane::before,.lane::after{content:"";position:absolute;left:50%;width:2px;height:22px;margin-left:-1px;background:var(--blue-300)}
-.lane::before{top:-23px} .lane::after{bottom:-23px}
-.lane-h{display:flex;gap:12px;align-items:flex-start}
-.lane-h > div{min-width:0}
-.lane-k{font:600 11px/1.3 var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin:0 0 4px}
-.lane-p{margin:0;font-size:14px}
-.spec{margin:0;display:grid;gap:11px;font-size:13.5px}
-.spec > div{display:grid;gap:4px;min-width:0}
-.spec dt{font:600 10.5px/1 var(--f-head);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.spec dd{margin:0;color:var(--ink);min-width:0}
-.spec ul{margin:0;padding-left:16px}
-.spec li{margin:2px 0}
-.mono{font-family:var(--f-mono);font-size:12px;overflow-wrap:anywhere}
-.lane .who{margin-top:auto;align-self:flex-start;white-space:normal}
-.loop-note{margin:0;display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ok);background:var(--ok-050);border:1px solid var(--ok-100);border-radius:var(--r-s);padding:8px 10px}
-.loop-note svg{width:16px;height:16px;flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tree{margin:0;padding:14px 16px;font:400 12.5px/1.75 var(--f-mono);color:var(--ink);background:var(--alt);border:1px solid var(--line);border-radius:var(--r-m);overflow-x:auto;white-space:pre}
+.tree .d{color:var(--blue-700);font-weight:500} .tree .m{color:var(--muted)}
+.box{border:1px solid var(--line);border-radius:var(--r-m);padding:14px 16px;background:var(--paper)}
+.box .dd-k{margin-bottom:8px}
 
 /* mocks: small pictures of each output (decorative) */
 .mock{height:var(--mock-h);border-radius:var(--r-m);background:var(--blue-050);border:1px solid var(--blue-100);position:relative;overflow:hidden;padding:12px}
@@ -143,7 +244,6 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .mf-field b{font:600 10.5px/1.3 var(--f-body);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mf-field b.todo{color:var(--amber)}
 .mf-drop{border:1.5px dashed var(--blue-300);border-radius:6px;padding:6px;font:600 9.5px/1.25 var(--f-head);color:var(--blue-700);text-align:center;background:var(--paper)}
-
 .m-quote{perspective:700px;display:flex;align-items:center;justify-content:center}
 .q-win{width:100%;background:var(--paper);border:1px solid var(--blue-100);border-radius:8px;box-shadow:var(--shadow-sm);overflow:hidden;transform:rotateY(-10deg) rotateX(5deg)}
 .q-bar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:var(--alt);border-bottom:1px solid var(--line);font:500 8px/1 var(--f-mono);color:var(--muted)}
@@ -160,7 +260,6 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .q-foot{display:flex;justify-content:space-between;align-items:center;padding:7px 8px}
 .q-foot em{font:600 7.5px/1 var(--f-head);color:var(--muted);font-style:normal}
 .q-btn{font:700 8px/1 var(--f-head);color:var(--paper);background:var(--blue);padding:5px 8px;border-radius:4px}
-
 .m-deck{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .slide{height:96px;aspect-ratio:16/9;max-width:100%;background:var(--paper);border:1px solid var(--blue-100);border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow-sm)}
 .sl-top{display:flex;align-items:center;gap:5px}
@@ -175,7 +274,6 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .dots{display:flex;gap:5px;align-items:center}
 .dots i{width:6px;height:6px;border-radius:3px;background:var(--blue-100)}
 .dots i.on{width:16px;background:var(--blue)}
-
 .m-pages .pg{position:absolute;top:calc(14px + var(--i) * 5px);left:calc(12px + var(--i) * (100% - 94px) / 3);z-index:calc(4 - var(--i));
   width:70px;height:99px;background:var(--paper);border:1px solid var(--blue-100);border-radius:4px;box-shadow:var(--shadow-sm);padding:7px 6px;display:flex;flex-direction:column;gap:4px}
 .pg i{display:block;height:3px;border-radius:2px;background:var(--line)}
@@ -188,7 +286,6 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .pg .sig i{flex:1;height:1px;background:var(--ink)}
 .pg em{font:500 7.5px/1 var(--f-mono);color:var(--muted);font-style:normal;align-self:flex-end;margin-top:auto}
 .pg .sig + em{margin-top:4px}
-
 .m-social .post{position:absolute;left:14px;top:12px;height:120px;aspect-ratio:3/4;background:var(--paper);border:1px solid var(--blue-100);border-radius:6px;padding:7px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow-sm);transform:rotate(-3deg)}
 .post .lgs{display:flex;justify-content:space-between}
 .post .lgs span{width:16px;height:5px;border-radius:2px;background:var(--blue)}
@@ -203,70 +300,33 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .vid .play{width:0;height:0;border-left:13px solid var(--paper);border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:6px}
 .vid em{position:absolute;right:7px;top:6px;font:500 8px/1 var(--f-mono);color:var(--blue-300);font-style:normal}
 
-/* loop arrow (drawn by script on wide screens) */
-.loop-svg{position:absolute;inset:0;pointer-events:none;overflow:visible}
-.loop-svg path.line{fill:none;stroke:var(--ok);stroke-width:2;stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
-.loop-svg marker path{fill:var(--ok)}
-.loop-tag{position:absolute;max-width:290px;font:600 12.5px/1.35 var(--f-head);color:var(--ok);background:var(--ok-050);border:1px solid var(--ok-100);border-radius:999px;padding:7px 12px}
-
-/* step 4 */
-.n-review{max-width:980px}
-.review{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px;margin-top:16px}
-.review > *{min-width:0}
-.sub-h{font:700 13px/1.3 var(--f-head);color:var(--ink);margin:0 0 10px}
-.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.checks li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;font-size:14px;align-items:start}
-.checks svg{width:18px;height:18px;margin-top:2px;fill:none;stroke:var(--ok);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.checks b{color:var(--ink);font-weight:600}
-.rules{margin-top:16px;padding:14px 16px;border-radius:var(--r-m);background:var(--alt);border:1px solid var(--line)}
-.rules ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:13.5px}
-.you-box{border:1px solid var(--amber-100);background:var(--amber-050);border-radius:var(--r-m);padding:16px 18px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
-.you-box p{margin:0;color:var(--ink);font-size:14.5px}
-
-/* step 5 */
-.n-deliver{max-width:980px}
-.deliver{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:16px}
-.deliver > *{min-width:0}
-.tree{margin:0;padding:14px 16px;font:400 12.5px/1.75 var(--f-mono);color:var(--ink);background:var(--alt);border:1px solid var(--line);border-radius:var(--r-m);overflow-x:auto;white-space:pre}
-.tree .d{color:var(--blue-700);font-weight:500}
-.tree .m{color:var(--muted)}
-.release{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:rel}
-.release li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;align-items:start;counter-increment:rel}
-.release li::before{content:counter(rel);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 13px/1 var(--f-head);color:var(--blue-700);background:var(--blue-050);border:1px solid var(--blue-100)}
-.release b{display:block;color:var(--ink);font:700 14.5px/1.3 var(--f-head);margin-bottom:3px}
-.release span{font-size:14px}
-
-/* open decisions + footer */
-.decide{max-width:980px;margin:28px auto 0;padding:18px 22px;border:1px dashed var(--amber-100);border-radius:var(--r-l);background:var(--paper)}
-.decide h2{font-size:16px}
-.decide ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14px}
-.decide li::marker{color:var(--amber)}
-.foot{max-width:980px;margin:22px auto 0;font-size:12.5px;color:var(--muted);text-align:center}
-
 /* motion */
 @keyframes flow{to{background-position:0 9px}}
 @keyframes dash{to{stroke-dashoffset:-12}}
 @keyframes blink{50%{opacity:0}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes eyes{0%,46%,54%,100%{transform:scaleY(1)}50%{transform:scaleY(.15)}}
+@keyframes slidein{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){
-  .spine,.loop-svg path.line,.caret,.who.auto::before,.nexi i{animation:none}
+  .spine,.loop-svg path.line,.caret,.nexi i,.drawer{animation:none}
+  .card,.c-go{transition:none}
 }
 
 /* responsive */
 @media (max-width:1239px){
   .lanes{grid-template-columns:repeat(2,minmax(0,1fr));padding-block:0}
-  .lanes::before,.lanes::after,.lane::before,.lane::after{display:none}
-  .lane:last-child{grid-column:1 / -1}
+  .lanes::before,.lanes::after,.lanes .card::before,.lanes .card::after{display:none}
+  .lanes .card:last-child{grid-column:1 / -1}
 }
-@media (max-width:760px){
-  .cols,.review,.deliver{grid-template-columns:minmax(0,1fr)}
-  .node{padding:18px 16px}
-  .node-h .who{margin-left:0}
+@media (max-width:700px){
+  .drawer{width:100%!important;border-left:0}
+  .grip{display:none}
+  .scrim{display:block}
+  .dhead{padding:16px}
+  .dbody{padding:18px 16px 28px}
+  .wide-btn{display:none}
 }
 @media (max-width:600px){
   .lanes{grid-template-columns:minmax(0,1fr)}
-  .holds{grid-template-columns:minmax(0,1fr)}
 }
 </style>
 </head>
@@ -274,16 +334,23 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 <div class="page">
   <header class="top">
     <div>
-      <p class="eyebrow">TechNext &#183; New client playbook &#183; Plan v2</p>
-      <h1>New client info in, full client pack out</h1>
-      <p class="lede">When new client information arrives, it becomes one client profile. Five outputs are built from that profile at the same time, starting with the sales proposal. They pass the checks, you review them once, and the client gets one consistent pack.</p>
+      <p class="eyebrow">TechNext &#183; Internal project &#183; Plan v3</p>
+      <div class="brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg>
+        <h1>NextCore</h1>
+      </div>
+      <p class="tagline">New client info in, full client pack out.</p>
+      <p class="lede">NextCore turns new client information into one client profile, then builds five outputs from it at the same time, starting with the sales proposal. Every output passes its checks, you review once, and the client gets one consistent pack.</p>
+      <p class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a5 5 0 0 1-4.2-2.3L4.3 14a1.5 1.5 0 0 1 2.4-1.8L9 14.5"/></svg>Click a card to open its own flowchart, data and skills. Drag the panel's edge to make it wider.</p>
     </div>
     <div class="legend" aria-label="Legend">
-      <p class="legend-h">Who does each step</p>
-      <div class="legend-row">
-        <span class="who auto">Automatic</span>
-        <span class="who you">You</span>
-        <span class="who client">Client</span>
+      <div>
+        <p class="legend-h">Who does the step</p>
+        <div class="legend-row"><span class="who sm auto">Automatic</span><span class="who sm you">You</span><span class="who sm client">Client</span></div>
+      </div>
+      <div>
+        <p class="legend-h">Claude skills</p>
+        <div class="legend-row"><span class="sk-chip">Have it</span><span class="sk-chip build">To build</span></div>
       </div>
     </div>
   </header>
@@ -299,346 +366,406 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     </svg>
     <p class="loop-tag" id="loop-tag" hidden>Client answers update the profile</p>
 
-    <!-- STEP 1 -->
-    <section class="node n-trigger" aria-labelledby="s1">
-      <div class="node-h">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/></svg>
-        <div>
-          <p class="step">Step 1 &#183; Trigger</p>
-          <h2 id="s1">New client information arrives</h2>
-        </div>
-        <span class="who you">You</span>
-      </div>
-      <p class="txt">Whatever we have about them so far. You hand it over in one message; nothing has to be formatted.</p>
-      <div class="chips">
-        <span class="chip">Odoo CRM opportunity</span>
-        <span class="chip">Discovery call notes</span>
-        <span class="chip">Signed quotation</span>
-        <span class="chip">Email to hello@technext.asia</span>
-        <span class="chip">Website or business card</span>
-      </div>
-      <div class="say">
-        <span class="say-k">You say</span>
-        <code>new client: Northgate Trading Corp. + call notes<span class="caret"></span></code>
-      </div>
-    </section>
-
-    <div class="spine"></div>
-
-    <!-- STEP 2 -->
-    <section class="node n-profile" id="profile" aria-labelledby="s2">
-      <div class="node-h">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 16.5c.8-1.6 2-2.3 3.5-2.3s2.7.7 3.5 2.3M14 10h4M14 13h4"/></svg>
-        <div>
-          <p class="step">Step 2 &#183; One client profile</p>
-          <h2 id="s2">Everything about the client in one file</h2>
-        </div>
-        <span class="who auto">Automatic</span>
-      </div>
-      <div class="cols">
-        <div>
-          <p class="txt">Claude reads what you sent and writes one profile. All five outputs read from it, so a name, a date or a figure is typed once and matches in the proposal, the deck, the SLA and the posts.</p>
-          <ul class="holds">
-            <li>Company, registration, TIN</li>
-            <li>Contacts and their roles</li>
-            <li>Industry and pain points</li>
-            <li>Odoo apps and users</li>
-            <li>Phases, dates, figures</li>
-            <li>Logo, colours, photos</li>
-          </ul>
-          <p class="gap-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><span>Anything missing is marked &quot;to collect&quot; and becomes a question on the Data Gathering page.</span></p>
-        </div>
-        <div class="win" role="img" aria-label="Sample client profile file with three fields still to collect">
-          <div class="win-bar"><i></i><i></i><i></i><span>client-profile.json</span><b class="tag">Sample data</b></div>
-<pre class="code">{
-  <span class="k">"client"</span>: <span class="s">"Northgate Trading Corp."</span>,
-  <span class="k">"industry"</span>: <span class="s">"Wholesale distribution"</span>,
-  <span class="k">"city"</span>: <span class="s">"Pasig City, PH"</span>,
-  <span class="k">"contact"</span>: <span class="s">"Finance Manager"</span>,
-  <span class="k">"pain_points"</span>: [<span class="s">"Excel books"</span>, <span class="s">"stock counts"</span>],
-  <span class="k">"odoo_apps"</span>: [<span class="s">"Accounting"</span>, <span class="s">"Inventory"</span>, <span class="s">"Sales"</span>],
-  <span class="k">"users"</span>: <span class="n">12</span>,
-  <span class="k">"phases"</span>: <span class="n">3</span>,
-  <span class="k">"tin_branch"</span>: <span class="todo">"to collect"</span>,
-  <span class="k">"logo"</span>: <span class="todo">"to collect"</span>,
-  <span class="k">"opening_balances"</span>: <span class="todo">"to collect"</span>
-}</pre>
-        </div>
-      </div>
-    </section>
-
-    <div class="spine"></div>
-    <p class="stage-pill">Step 3 &#183; Automatic build: five outputs, Sales Proposal first</p>
-    <div class="spine short to-lanes"></div>
-
-    <!-- STEP 3: five lanes -->
-    <div class="lanes">
-
-      <article class="lane first" id="lane-proposal" aria-labelledby="l0">
-        <div class="lane-h">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg>
-          <div>
-            <p class="lane-k">Goes out first &#183; wins the deal</p>
-            <h3 id="l0">Sales Proposal (HTML)</h3>
-          </div>
-        </div>
-        <p class="lane-p">An interactive proposal in the Odoo quotation style, copied from our BIR CAS proposal template and filled from the profile.</p>
-        <div class="mock m-quote" aria-hidden="true">
-          <div class="q-win">
-            <div class="q-bar"><i></i><i></i><i></i><span>Quotation S00148</span></div>
-            <div class="q-steps"><span class="on">Quotation</span><span>Sent</span><span>Signed</span></div>
-            <div class="q-line"><i></i><b></b></div>
-            <div class="q-line"><i class="w7"></i><b></b></div>
-            <div class="q-line"><i class="w5"></i><b></b></div>
-            <div class="q-foot"><em>Part 1 &#183; 2 &#183; 3</em><span class="q-btn">Accept &amp; sign</span></div>
-          </div>
-        </div>
-        <dl class="spec">
-          <div><dt>Three parts</dt><dd><ul>
-            <li>Showcase: their services, animated, plus FAQ</li>
-            <li>Commercial: quote lines, options, payment plan</li>
-            <li>Terms: SLA summary, key terms, Accept and sign</li>
-          </ul></dd></div>
-          <div><dt>Output</dt><dd class="mono">proposal.html &#183; private link + PDF</dd></div>
-          <div><dt>Check</dt><dd>Impeccable critique and audit, prices only in the commercial part, client copy never in the public template repo</dd></div>
-        </dl>
-        <span class="who you">Auto draft &#183; you confirm the prices</span>
-      </article>
-
-      <article class="lane" id="lane-data" aria-labelledby="l1">
-        <div class="lane-h">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>
-          <div>
-            <p class="lane-k">Client digital space</p>
-            <h3 id="l1">Data Gathering page</h3>
-          </div>
-        </div>
-        <p class="lane-p">One private HTML page per client that asks for every detail we still need, pre-filled with what we already know.</p>
-        <div class="mock m-form" aria-hidden="true">
-          <div class="mf-steps"><span class="on">Company</span><span>People</span><span>Brand</span></div>
-          <div class="mf-field"><em>Registered name</em><b>Northgate Trading Corp.</b></div>
-          <div class="mf-field"><em>TIN + branch code</em><b class="todo">To collect</b></div>
-          <div class="mf-drop">Drop Form 2303, logo, price list</div>
-        </div>
-        <dl class="spec">
-          <div><dt>Asks for</dt><dd><ul>
-            <li>Registration: BIR Form 2303, TIN, branch codes</li>
-            <li>Branches, people and Odoo users</li>
-            <li>How they work today, current software</li>
-            <li>Chart of accounts, opening balances</li>
-            <li>Products, price lists, customers, suppliers</li>
-            <li>Logo, brand colours, photos, go-live date</li>
-          </ul></dd></div>
-          <div><dt>Output</dt><dd class="mono">data-gathering.html &#183; private link</dd></div>
-          <div><dt>Check</dt><dd>Works on a phone, every answer saves</dd></div>
-        </dl>
-        <p class="loop-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg><span>Answers flow back into the profile, then the SLA is rebuilt with the real details.</span></p>
-        <span class="who client">Client fills it in</span>
-      </article>
-
-      <article class="lane" aria-labelledby="l2">
-        <div class="lane-h">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 12l3-3 2 2 4-4"/></svg>
-          <div>
-            <p class="lane-k">First impression</p>
-            <h3 id="l2">TechNext Short Presentation</h3>
-          </div>
-        </div>
-        <p class="lane-p">A short TechNext deck written for this client: their logo, their problems, and the Odoo apps that solve them.</p>
-        <div class="mock m-deck" aria-hidden="true">
-          <div class="slide">
-            <div class="sl-top"><span class="sl-logo">TechNext</span><span class="sl-x">&#215;</span><span class="sl-client">CLIENT LOGO</span></div>
-            <div class="sl-t">What we heard from your team</div>
-            <div class="sl-rows"><i></i><i></i><i></i></div>
-          </div>
-          <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
-        </div>
-        <dl class="spec">
-          <div><dt>Six slides</dt><dd><ul>
-            <li>Who TechNext is</li>
-            <li>What we heard: their pain points</li>
-            <li>The Odoo apps for them</li>
-            <li>NextSprint: how we work</li>
-            <li>Phases and timeline</li>
-            <li>Next step</li>
-          </ul></dd></div>
-          <div><dt>Output</dt><dd class="mono">1600x900 HTML deck &#183; share link + PDF</dd></div>
-          <div><dt>Check</dt><dd>Impeccable critique and audit</dd></div>
-        </dl>
-        <span class="who auto">Automatic</span>
-      </article>
-
-      <article class="lane" aria-labelledby="l3">
-        <div class="lane-h">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 18c1-1.5 2-1.5 3 0s2 1.5 3 0"/></svg>
-          <div>
-            <p class="lane-k">Newer format &#183; Rev 1.1</p>
-            <h3 id="l3">Service Level Agreement</h3>
-          </div>
-        </div>
-        <p class="lane-p">The newer 4-page A4 Proposal + SLA (our latest client format), filled from the profile. Compact and in TechNext branding.</p>
-        <div class="mock m-pages" aria-hidden="true">
-          <div class="pg" style="--i:0"><i class="hd"></i><i></i><i class="w7"></i><i></i><i class="w5"></i><em>p1</em></div>
-          <div class="pg" style="--i:1"><i class="hd"></i><i class="g" style="--x:0%;--w:45%"></i><i class="g" style="--x:30%;--w:40%"></i><i class="g" style="--x:60%;--w:40%"></i><i class="w7"></i><em>p2</em></div>
-          <div class="pg" style="--i:2"><i class="hd"></i><span class="row"><i></i><i></i></span><span class="row"><i></i><i></i></span><span class="row"><i></i><i></i></span><em>p3</em></div>
-          <div class="pg" style="--i:3"><i class="hd"></i><i></i><i class="w7"></i><i></i><span class="sig"><i></i><i></i></span><em>p4</em></div>
-        </div>
-        <dl class="spec">
-          <div><dt>Four pages</dt><dd><ul>
-            <li>p1 Cover letter, NextSprint, outcomes, value</li>
-            <li>p2 Scope, Gantt, response times P1-P4</li>
-            <li>p3 Why TechNext, investment</li>
-            <li>p4 Clauses, next steps, sign-off</li>
-          </ul></dd></div>
-          <div><dt>Output</dt><dd class="mono">&lt;Client&gt; - TechNext Proposal and Service Level Agreement Rev 1.0.pdf</dd></div>
-          <div><dt>Check</dt><dd>Page-fit check, figures marked Estimate, Odoo licence shown as paid to Odoo</dd></div>
-        </dl>
-        <span class="who you">Auto draft &#183; you confirm the figures</span>
-      </article>
-
-      <article class="lane" aria-labelledby="l4">
-        <div class="lane-h">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg>
-          <div>
-            <p class="lane-k">Announce the project</p>
-            <h3 id="l4">Social posts + Nexi video</h3>
-          </div>
-        </div>
-        <p class="lane-p">Welcome posts and a Nexi video about the new client's project, in TechNext branding, each designed from scratch.</p>
-        <div class="mock m-social" aria-hidden="true">
-          <div class="post"><span class="lgs"><span></span><span></span></span><b>Welcome aboard, Northgate</b><i></i><i></i><span class="pcta"></span></div>
-          <div class="vid"><span class="nexi"><i></i><i></i></span><span class="play"></span><em>16:9</em></div>
-        </div>
-        <dl class="spec">
-          <div><dt>Makes</dt><dd><ul>
-            <li>3:4 posts, 2160x2880, TechNext logo top-left, Odoo top-right</li>
-            <li>9:16 reel, 1080x1920</li>
-            <li>Nexi video, 16:9 with voice, captions and music</li>
-            <li>Captions for Facebook, Instagram, LinkedIn</li>
-          </ul></dd></div>
-          <div><dt>Output</dt><dd class="mono">PNG &#183; MP4 &#183; captions.txt</dd></div>
-          <div><dt>Check</dt><dd>audit.py 0 errors, Nexi release gate</dd></div>
-        </dl>
-        <span class="who client">Waits for the client's OK on name + logo</span>
-      </article>
-
+    <div class="row">
+      <button class="card node-card" type="button" data-open="trigger" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/></svg><span class="c-k">Step 1 &#183; Trigger</span></span>
+        <span class="c-t">New client info</span>
+        <span class="c-p">You hand over what we have about the client in one message.</span>
+        <span class="c-foot"><span class="who sm you">You</span><span class="c-sk" data-skills="trigger">1 skill</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
     </div>
 
     <div class="spine"></div>
 
-    <!-- STEP 4 -->
-    <section class="node n-review" aria-labelledby="s4">
-      <div class="node-h">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
-        <div>
-          <p class="step">Step 4 &#183; Checks, then your review</p>
-          <h2 id="s4">Nothing leaves before it passes and you approve</h2>
-        </div>
-      </div>
-      <div class="review">
-        <div>
-          <p class="sub-h">Automatic checks, before you see anything</p>
-          <ul class="checks">
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span><b>Sales proposal:</b> Impeccable critique and audit, hero check 0 errors, prices only in the commercial part</span></li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span><b>Data page:</b> opens on a phone, every field saves, no other client's data</span></li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span><b>Presentation:</b> Impeccable critique and audit, issues fixed and re-scored</span></li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span><b>SLA:</b> every page fits above the footer, figures tagged Estimate</span></li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span><b>Posts and video:</b> audit.py 0 errors, Nexi release gate passed</span></li>
-          </ul>
-          <div class="rules">
-            <p class="sub-h">Copy rules on all five</p>
-            <ul>
-              <li>No BIR guarantees and no &quot;BIR-ready&quot; or accreditation claims; the client's accountant confirms coverage</li>
-              <li>Odoo is never &quot;free&quot;: the client pays the Odoo subscription</li>
-              <li>Odoo Partner in Singapore only</li>
-              <li>One client per pack: no other client's name, logo or link</li>
-            </ul>
-          </div>
-        </div>
-        <div class="you-box">
-          <span class="who you">You</span>
-          <p>One review link shows the five outputs side by side. You approve, or say what to change and only that part is rebuilt.</p>
-          <p>Nothing reaches the client or social media before you approve.</p>
-        </div>
-      </div>
-    </section>
+    <div class="row">
+      <button class="card node-card" id="c-profile" type="button" data-open="profile" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 16.5c.8-1.6 2-2.3 3.5-2.3s2.7.7 3.5 2.3M14 10h4M14 13h4"/></svg><span class="c-k">Step 2 &#183; One client profile</span></span>
+        <span class="c-t">Client profile</span>
+        <span class="c-p">One file that every output reads from. Gaps are marked "to collect".</span>
+        <span class="c-foot"><span class="who sm auto">Automatic</span><span class="c-sk" data-skills="profile">2 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+
+    <div class="spine"></div>
+    <p class="stage-pill">Step 3 &#183; Five outputs, built at the same time</p>
+    <div class="spine short"></div>
+
+    <div class="lanes">
+      <button class="card first" type="button" data-open="proposal" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg><span class="c-k">Goes out 1st</span></span>
+        <span class="c-t">Sales Proposal</span>
+        <span class="c-p">Interactive Odoo-style proposal from our BIR CAS template.</span>
+        <span class="c-foot"><span class="who sm you">You confirm prices</span><span class="c-sk" data-skills="proposal">7 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="card" id="c-data" type="button" data-open="data" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10h7M8.5 14h7M8.5 18h4"/></svg><span class="c-k">After they accept</span></span>
+        <span class="c-t">Data Gathering page</span>
+        <span class="c-p">Private page that collects every detail we still need.</span>
+        <span class="c-foot"><span class="who sm client">Client fills</span><span class="c-sk" data-skills="data">4 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="card" type="button" data-open="deck" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 12l3-3 2 2 4-4"/></svg><span class="c-k">With the proposal</span></span>
+        <span class="c-t">Short Presentation</span>
+        <span class="c-p">Six TechNext slides written for this client.</span>
+        <span class="c-foot"><span class="who sm auto">Automatic</span><span class="c-sk" data-skills="deck">5 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="card" type="button" data-open="sla" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 18c1-1.5 2-1.5 3 0s2 1.5 3 0"/></svg><span class="c-k">After their answers</span></span>
+        <span class="c-t">Service Level Agreement</span>
+        <span class="c-p">4-page A4 Proposal + SLA in the Rev 1.1 format.</span>
+        <span class="c-foot"><span class="who sm you">You confirm figures</span><span class="c-sk" data-skills="sla">4 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="card" type="button" data-open="social" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg><span class="c-k">Goes out last</span></span>
+        <span class="c-t">Social posts + Nexi video</span>
+        <span class="c-p">Welcome posts and a Nexi video about their project.</span>
+        <span class="c-foot"><span class="who sm client">Client OK first</span><span class="c-sk" data-skills="social">6 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
 
     <div class="spine"></div>
 
-    <!-- STEP 5 -->
-    <section class="node n-deliver" aria-labelledby="s5">
-      <div class="node-h">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13l2 2 4-4"/></svg>
-        <div>
-          <p class="step">Step 5 &#183; Deliver</p>
-          <h2 id="s5">Filed as one client pack, released in order</h2>
-        </div>
-        <span class="who auto">Automatic</span>
-      </div>
-      <div class="deliver">
-        <div>
-          <p class="sub-h">Where it lands on the Marketing drive</p>
-<pre class="tree"><span class="d">01. Client Folder\</span>
-  <span class="d">14. &lt;Client name&gt;\</span>       <span class="m">next free number</span>
-    <span class="d">01. Sales Proposal\</span>
-    <span class="d">02. Data Gathering\</span>
-    <span class="d">03. Short Presentation\</span>
-    <span class="d">04. Service Level Agreement\</span>
-    <span class="d">05. Social Media and Nexi\</span>
-    <span class="d">_build\</span>                 <span class="m">sources, not for the client</span></pre>
-        </div>
-        <div>
-          <p class="sub-h">When each part goes out</p>
-          <ol class="release">
-            <li><div><b>First reply to the client</b><span>Sales Proposal link and the Short Presentation, in a Gmail draft from hello@technext.asia. You press send.</span></div></li>
-            <li><div><b>When they accept the proposal</b><span>The Data Gathering link goes out so they can send every detail we need.</span></div></li>
-            <li><div><b>After their answers come in</b><span>The SLA is rebuilt with the real details as the next revision and sent for signature.</span></div></li>
-            <li><div><b>After signing and their OK on name and logo</b><span>Welcome posts and the Nexi video go into the posting schedule.</span></div></li>
-          </ol>
-        </div>
-      </div>
-    </section>
+    <div class="row">
+      <button class="card node-card" type="button" data-open="review" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span class="c-k">Step 4 &#183; Checks, then your review</span></span>
+        <span class="c-t">Checks + your review</span>
+        <span class="c-p">Nothing leaves before it passes its checks and you approve.</span>
+        <span class="c-foot"><span class="who sm you">You approve</span><span class="c-sk" data-skills="review">4 skills</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+
+    <div class="spine"></div>
+
+    <div class="row">
+      <button class="card node-card" type="button" data-open="deliver" aria-controls="drawer" aria-expanded="false">
+        <span class="c-top"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13l2 2 4-4"/></svg><span class="c-k">Step 5 &#183; Deliver</span></span>
+        <span class="c-t">Client pack</span>
+        <span class="c-p">Filed in one numbered client folder and released in order.</span>
+        <span class="c-foot"><span class="who sm auto">Automatic</span><span class="c-sk" data-skills="deliver">1 skill</span><svg class="c-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
   </div>
 
+  <section class="map" aria-labelledby="map-h">
+    <div class="map-head">
+      <h2 id="map-h">Skills map</h2>
+      <p id="map-sum">Which Claude skills each card needs. Click a column to open that card.</p>
+    </div>
+    <div class="map-scroll"><table class="map-t" id="map-t"></table></div>
+  </section>
+
   <section class="decide" aria-labelledby="dq">
-    <h2 id="dq">To decide before we build the automation</h2>
+    <h2 id="dq">To decide before we build NextCore</h2>
     <ul>
       <li>Where the Data Gathering page saves answers and files: the client's Odoo CRM record, or their folder on the Marketing drive.</li>
+      <li>Where each client's proposal and data page are hosted: a private link per client, with no TechNext site menu and no other client's links.</li>
       <li>Whether to add a publicity line to the SLA, so the client agrees up front to the welcome post and Nexi video.</li>
-      <li>How each client's page is hosted: a private link per client, with no TechNext site menu and no other client's links.</li>
     </ul>
   </section>
 
-  <p class="foot">TechNext &#183; New client build flow &#183; Plan v2, 5 Nov 2026 &#183; Northgate Trading Corp. is sample data, not a real client</p>
+  <p class="foot">TechNext &#183; NextCore &#183; Plan v3, 5 Nov 2026 &#183; Northgate Trading Corp. is sample data, not a real client</p>
 </div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-labelledby="d-title" hidden>
+  <div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Drag to resize the panel" aria-valuemin="360" tabindex="0"><span></span></div>
+  <header class="dhead">
+    <div class="dhead-t">
+      <span class="c-k" id="d-kicker"></span>
+      <h2 id="d-title" tabindex="-1"></h2>
+      <span class="who sm" id="d-who"></span>
+    </div>
+    <div class="dtools">
+      <button class="ib" id="d-prev" type="button" aria-label="Previous card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="ib" id="d-next" type="button" aria-label="Next card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="ib wide-btn" id="d-wide" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H5v4M15 5h4v4M9 19H5v-4M15 19h4v-4"/></svg><span id="d-wide-l">Full width</span></button>
+      <button class="ib" id="d-close" type="button" aria-label="Close panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </header>
+  <div class="dbody" id="d-body"></div>
+</aside>
 
 <script>
 (function(){
-  var flow=document.getElementById('flow');
-  var svg=document.getElementById('loop');
-  var path=document.getElementById('loop-path');
-  var tag=document.getElementById('loop-tag');
-  var lane=document.getElementById('lane-data');
-  var prof=document.getElementById('profile');
-  if(!flow||!svg||!path||!tag||!lane||!prof) return;
+  /* ---------------- Claude skills ---------------- */
+  var SK={
+    'nextcore':{build:true,what:'Runs the whole flow: reads the info, writes the profile, starts every card, files the pack'},
+    'nextcore-proposal':{build:true,what:'Copies the BIR CAS proposal template and fills it from the profile'},
+    'nextcore-data-page':{build:true,what:'Builds the Data Gathering page from the "to collect" fields'},
+    'nextcore-sla':{build:true,what:'Fills the Rev 1.1 SLA template, renders the PDF, runs the page-fit check'},
+    'technext-presentations':{what:'Builds the 1600x900 TechNext deck, share link and PDF'},
+    'technext-social-posts':{what:'Designs and renders the 3:4 posts and 9:16 reel, runs audit.py'},
+    'nexi-video':{what:'Makes the Nexi video and runs the release gate'},
+    'nexi-character':{what:'Keeps Nexi in character: reactions, voice, attitude'},
+    'impeccable':{what:'Design critique (/40) and audit (/20), then fixes'},
+    'hero-section-design':{what:'Proposal first screen and hero_check.py'},
+    'web-design-engineer':{what:'Builds interactive HTML pages and checks them in a browser'},
+    'find-animation-opportunities':{what:'Adds purposeful motion to the proposal and deck'},
+    'marketing-skills:copywriting':{what:'Writes page and slide copy'},
+    'marketing-skills:copy-editing':{what:'Edits copy against the TechNext copy rules'},
+    'marketing-skills:customer-research':{what:'Turns call notes into clear pain points'},
+    'marketing-skills:social':{what:'Captions for each platform'},
+    'ai-marketing-skills:de-ai-ify':{what:'Removes AI-sounding phrases from copy'},
+    'anthropic-skills:pdf':{what:'Builds and checks the PDFs'},
+    'marketing-team':{what:'Ralph plans the posting dates and captions'}
+  };
+
+  /* ---------------- panel extras ---------------- */
+  var X={
+    say:'<div class="say"><span class="say-k">You say</span><code>nextcore new client: Northgate Trading Corp. + call notes<span class="caret"></span></code></div>',
+    profile:'<div class="win" role="img" aria-label="Sample client profile with three fields still to collect"><div class="win-bar"><i></i><i></i><i></i><span>client-profile.json</span><b class="tag">Sample data</b></div>'+
+      '<pre class="code">{\n'+
+      '  <span class="k">"client"</span>: <span class="s">"Northgate Trading Corp."</span>,\n'+
+      '  <span class="k">"industry"</span>: <span class="s">"Wholesale distribution"</span>,\n'+
+      '  <span class="k">"city"</span>: <span class="s">"Pasig City, PH"</span>,\n'+
+      '  <span class="k">"contact"</span>: <span class="s">"Finance Manager"</span>,\n'+
+      '  <span class="k">"pain_points"</span>: [<span class="s">"Excel books"</span>, <span class="s">"stock counts"</span>],\n'+
+      '  <span class="k">"odoo_apps"</span>: [<span class="s">"Accounting"</span>, <span class="s">"Inventory"</span>, <span class="s">"Sales"</span>],\n'+
+      '  <span class="k">"users"</span>: <span class="n">12</span>,\n'+
+      '  <span class="k">"phases"</span>: <span class="n">3</span>,\n'+
+      '  <span class="k">"tin_branch"</span>: <span class="todo">"to collect"</span>,\n'+
+      '  <span class="k">"logo"</span>: <span class="todo">"to collect"</span>,\n'+
+      '  <span class="k">"opening_balances"</span>: <span class="todo">"to collect"</span>\n}</pre></div>',
+    asks:'<div class="box"><p class="dd-k">What the page asks for</p><ul class="dl">'+
+      '<li>Registration: BIR Form 2303, TIN, branch codes</li><li>Branches, people and Odoo users</li>'+
+      '<li>How they work today, current software</li><li>Chart of accounts, opening balances</li>'+
+      '<li>Products, price lists, customers, suppliers</li><li>Logo, brand colours, photos, go-live date</li></ul></div>',
+    deck:'<div class="box"><p class="dd-k">The six slides</p><ul class="dl">'+
+      '<li>Who TechNext is</li><li>What we heard: their pain points</li><li>The Odoo apps for them</li>'+
+      '<li>NextSprint: how we work</li><li>Phases and timeline</li><li>Next step</li></ul></div>',
+    pages:'<div class="box"><p class="dd-k">The four pages</p><ul class="dl">'+
+      '<li>p1 Cover letter, NextSprint, outcomes, value</li><li>p2 Scope, Gantt, response times P1-P4</li>'+
+      '<li>p3 Why TechNext, investment</li><li>p4 Clauses, next steps, sign-off</li></ul></div>',
+    rules:'<div class="box"><p class="dd-k">Copy rules on all five outputs</p><ul class="dl">'+
+      '<li>No BIR guarantees and no "BIR-ready" or accreditation claims; the client&#8217;s accountant confirms coverage</li>'+
+      '<li>Odoo is never "free": the client pays the Odoo subscription</li>'+
+      '<li>Odoo Partner in Singapore only</li>'+
+      '<li>One client per pack: no other client&#8217;s name, logo or link</li></ul></div>',
+    tree:'<pre class="tree"><span class="d">01. Client Folder\\</span>\n'+
+      '  <span class="d">14. &lt;Client name&gt;\\</span>       <span class="m">next free number</span>\n'+
+      '    <span class="d">01. Sales Proposal\\</span>\n'+
+      '    <span class="d">02. Data Gathering\\</span>\n'+
+      '    <span class="d">03. Short Presentation\\</span>\n'+
+      '    <span class="d">04. Service Level Agreement\\</span>\n'+
+      '    <span class="d">05. Social Media and Nexi\\</span>\n'+
+      '    <span class="d">_build\\</span>                 <span class="m">sources, not for the client</span></pre>'
+  };
+  var M={
+    proposal:'<div class="mock m-quote" aria-hidden="true"><div class="q-win"><div class="q-bar"><i></i><i></i><i></i><span>Quotation S00148</span></div><div class="q-steps"><span class="on">Quotation</span><span>Sent</span><span>Signed</span></div><div class="q-line"><i></i><b></b></div><div class="q-line"><i class="w7"></i><b></b></div><div class="q-line"><i class="w5"></i><b></b></div><div class="q-foot"><em>Part 1 &#183; 2 &#183; 3</em><span class="q-btn">Accept &amp; sign</span></div></div></div>',
+    data:'<div class="mock m-form" aria-hidden="true"><div class="mf-steps"><span class="on">Company</span><span>People</span><span>Brand</span></div><div class="mf-field"><em>Registered name</em><b>Northgate Trading Corp.</b></div><div class="mf-field"><em>TIN + branch code</em><b class="todo">To collect</b></div><div class="mf-drop">Drop Form 2303, logo, price list</div></div>',
+    deck:'<div class="mock m-deck" aria-hidden="true"><div class="slide"><div class="sl-top"><span class="sl-logo">TechNext</span><span class="sl-x">&#215;</span><span class="sl-client">CLIENT LOGO</span></div><div class="sl-t">What we heard from your team</div><div class="sl-rows"><i></i><i></i><i></i></div></div><div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div></div>',
+    sla:'<div class="mock m-pages" aria-hidden="true"><div class="pg" style="--i:0"><i class="hd"></i><i></i><i class="w7"></i><i></i><i class="w5"></i><em>p1</em></div><div class="pg" style="--i:1"><i class="hd"></i><i class="g" style="--x:0%;--w:45%"></i><i class="g" style="--x:30%;--w:40%"></i><i class="g" style="--x:60%;--w:40%"></i><i class="w7"></i><em>p2</em></div><div class="pg" style="--i:2"><i class="hd"></i><span class="row"><i></i><i></i></span><span class="row"><i></i><i></i></span><span class="row"><i></i><i></i></span><em>p3</em></div><div class="pg" style="--i:3"><i class="hd"></i><i></i><i class="w7"></i><i></i><span class="sig"><i></i><i></i></span><em>p4</em></div></div>',
+    social:'<div class="mock m-social" aria-hidden="true"><div class="post"><span class="lgs"><span></span><span></span></span><b>Welcome aboard, Northgate</b><i></i><i></i><span class="pcta"></span></div><div class="vid"><span class="nexi"><i></i><i></i></span><span class="play"></span><em>16:9</em></div></div>'
+  };
+
+  /* ---------------- cards ---------------- */
+  var CARDS=[
+    {id:'trigger',short:'Trigger',kicker:'Step 1 &#183; Trigger',title:'New client info',who:['you','You'],
+     summary:'You hand over whatever we have about the new client in one message. Nothing has to be formatted.',
+     steps:[['y','You collect the info: CRM, call notes, quotation, email'],['y','You say: nextcore new client + the notes'],['a','NextCore opens the next free client folder'],['a','The build starts']],
+     input:['Odoo CRM opportunity','Discovery call notes','Signed quotation','Email to hello@technext.asia','Their website or business card'],
+     output:['A build request with the raw notes'],
+     check:['The client is not already in 01. Client Folder'],
+     extra:X.say,
+     skills:['nextcore'],tools:['Odoo CRM (read)','Gmail (read)','Google Drive'],people:['You, after the discovery call']},
+    {id:'profile',short:'Profile',kicker:'Step 2 &#183; One client profile',title:'Client profile',who:['auto','Automatic'],
+     summary:'NextCore reads what you sent and writes one profile. All five outputs read from it, so a name, a date or a figure is typed once and matches everywhere.',
+     steps:[['a','Read your notes and attachments'],['a','Check their website for company facts'],['a','Write client-profile.json'],['a','Mark gaps as "to collect"'],['a','Hand the profile to the five output cards']],
+     input:['Your notes and attachments','Their website'],
+     output:['client-profile.json in the client folder'],
+     check:['Every field has a source or is marked "to collect"'],
+     extra:X.profile,
+     skills:['nextcore','marketing-skills:customer-research'],tools:['Web search and page fetch','Google Drive'],people:['None, fully automatic']},
+    {id:'proposal',short:'Proposal',kicker:'Output 1 &#183; goes out first',title:'Sales Proposal',who:['you','You confirm prices'],mock:M.proposal,
+     summary:'An interactive proposal in the Odoo quotation style, copied from our BIR CAS proposal template and filled from the profile. It is the first thing the client sees.',
+     steps:[['a','Copy the BIR CAS proposal template'],['a','Fill name, services and timeline from the profile'],['a','Part 1: their services, animated, plus FAQ'],['a','Part 2: quote lines, options, payment plan'],['y','You confirm the prices'],['a','Part 3: terms, Accept and sign'],['a','Impeccable audit and hero check'],['a','Private link and PDF']],
+     input:['Client name and logo','Services and Odoo apps','Timeline and phases','Prices (you confirm)'],
+     output:['proposal.html on a private link','PDF in 01. Sales Proposal'],
+     check:['Impeccable critique and audit','hero_check.py 0 errors','Prices only in Part 2','Never in the public template repo'],
+     skills:['nextcore-proposal','web-design-engineer','hero-section-design','impeccable','find-animation-opportunities','marketing-skills:copywriting','anthropic-skills:pdf'],
+     tools:['BIR CAS proposal template','Headless Chrome for PDF and checks','Private hosting (to decide)'],people:['You confirm the prices','Client accepts and signs online']},
+    {id:'data',short:'Data page',kicker:'Output 2 &#183; after they accept',title:'Data Gathering page',who:['client','Client fills'],mock:M.data,
+     summary:'A private page for this client only. It asks for every detail we still need and is already filled with what we know.',
+     steps:[['a','List the "to collect" fields'],['a','Group them: company, people, accounts, products, brand'],['a','Pre-fill what we already know'],['a','Add file drops: Form 2303, logo, price list'],['a','Phone test, every answer saves'],['c','Client fills it in'],['a','Answers update the profile and the SLA rebuilds']],
+     input:['"To collect" fields from the profile','What we already know'],
+     output:['data-gathering.html on a private link','Answers and files saved (place to decide)'],
+     check:['Opens on a phone','Every answer saves','No other client&#8217;s data'],
+     extra:X.asks,
+     skills:['nextcore-data-page','web-design-engineer','impeccable','marketing-skills:copywriting'],
+     tools:['Private hosting (to decide)','Odoo CRM record or Drive folder for answers (to decide)'],people:['Client fills it in','Our Odoo consultant reviews the answers']},
+    {id:'deck',short:'Deck',kicker:'Output 3 &#183; goes out with the proposal',title:'Short Presentation',who:['auto','Automatic'],mock:M.deck,
+     summary:'A short TechNext deck written for this client: their logo, their problems, and the Odoo apps that solve them.',
+     steps:[['a','Pick the six slides'],['a','Write "what we heard" from the pain points'],['a','Match Odoo apps to their needs'],['a','NextSprint and timeline'],['a','Build the 1600x900 deck'],['a','Impeccable critique and audit'],['a','Share link and PDF']],
+     input:['Logo and brand colours','Pain points','Odoo apps','Phases'],
+     output:['1600x900 HTML deck on a share link','PDF in 03. Short Presentation'],
+     check:['Impeccable critique and audit, re-scored after fixes','TechNext fact and copy rules'],
+     extra:X.deck,
+     skills:['technext-presentations','impeccable','find-animation-opportunities','marketing-skills:copywriting','anthropic-skills:pdf'],
+     tools:['technext-presentations repo (unlisted link)','Headless Chrome for the PDF'],people:['You review it before it goes out']},
+    {id:'sla',short:'SLA',kicker:'Output 4 &#183; after their answers',title:'Service Level Agreement',who:['you','You confirm figures'],mock:M.sla,
+     summary:'The newer 4-page A4 Proposal + SLA (Rev 1.1 format), filled from the profile. Compact and in TechNext branding.',
+     steps:[['a','Copy the Rev 1.1 template'],['a','Scope, phases and Gantt from the profile'],['a','Response times P1 to P4'],['a','Investment, every figure tagged Estimate'],['y','You confirm the figures'],['a','Page-fit check and PDF'],['a','Rebuilt with the client&#8217;s answers'],['c','Client signs']],
+     input:['Scope and phases','Users and Odoo apps','Figures (you confirm)','Answers from the Data Gathering page'],
+     output:['&lt;Client&gt; - TechNext Proposal and Service Level Agreement Rev 1.x.pdf'],
+     check:['check.py: every page fits above the footer','Figures tagged Estimate','Odoo licence shown as paid to Odoo'],
+     extra:X.pages,
+     skills:['nextcore-sla','impeccable','marketing-skills:copy-editing','anthropic-skills:pdf'],
+     tools:['sla.template.html, build.py, check.py','Headless Chrome PDF and pymupdf previews'],people:['You confirm the figures','Client signs']},
+    {id:'social',short:'Social',kicker:'Output 5 &#183; goes out last',title:'Social posts + Nexi video',who:['client','Client OK first'],mock:M.social,
+     summary:'Welcome posts and a Nexi video about the new client&#8217;s project, each designed from scratch in TechNext branding. Nothing starts until the client says yes to their name and logo.',
+     steps:[['c','Client OKs their name and logo'],['a','One concept per post'],['a','Render 3:4 posts and a 9:16 reel'],['a','Nexi video: script, voice, captions, music'],['a','audit.py and the Nexi release gate'],['a','Captions for Facebook, Instagram, LinkedIn'],['y','You approve'],['a','Into the posting schedule']],
+     input:['Name and logo (with their OK)','Project and Odoo apps','Industry'],
+     output:['3:4 posts, 2160x2880 PNG','9:16 reel, 1080x1920 MP4','Nexi video, 16:9 MP4','captions.txt'],
+     check:['audit.py 0 errors','Nexi release gate passed','TechNext logo top-left, Odoo top-right'],
+     skills:['technext-social-posts','nexi-video','nexi-character','marketing-skills:social','ai-marketing-skills:de-ai-ify','marketing-team'],
+     tools:['Headless Chrome renderer','Nexi renderer','Buffer'],people:['Client OKs name and logo','You approve']},
+    {id:'review',short:'Review',kicker:'Step 4 &#183; Checks, then your review',title:'Checks + your review',who:['you','You approve'],
+     summary:'Each output passes its own check and the copy rules before you see it. Then you get one review link with all five side by side.',
+     steps:[['a','Each card runs its own check'],['a','Copy rules scan on all five'],['a','One review link, five outputs side by side'],['y','You approve or ask for changes'],['a','Only the changed part rebuilds']],
+     input:['The five outputs'],
+     output:['Your approval, card by card'],
+     check:['The copy rules below'],
+     extra:X.rules,
+     skills:['nextcore','impeccable','marketing-skills:copy-editing','ai-marketing-skills:de-ai-ify'],
+     tools:['Review page with all five outputs'],people:['You']},
+    {id:'deliver',short:'Deliver',kicker:'Step 5 &#183; Deliver',title:'Client pack',who:['auto','Automatic'],
+     summary:'Everything is filed as one client pack on the Marketing drive and released to the client in order.',
+     steps:[['a','File into 01. Client Folder\\NN. &lt;Client&gt;'],['a','md5 check every copy'],['a','Gmail draft from hello@technext.asia'],['y','You press send'],['a','Release in order: proposal + deck, data page, SLA, social']],
+     input:['Approved outputs'],
+     output:['Numbered client folder','One Gmail draft per release'],
+     check:['md5 of every Drive copy matches the source'],
+     extra:X.tree,
+     skills:['nextcore'],tools:['Google Drive','Gmail connector (drafts only)'],people:['You press send']}
+  ];
+  var byId={}; CARDS.forEach(function(c,i){c.i=i;byId[c.id]=c;});
+
+  /* ---------------- render helpers ---------------- */
+  function list(a){return '<ul class="dl">'+a.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';}
+  function skillList(names){return '<ul class="sk-list">'+names.map(function(n){var s=SK[n];return '<li class="sk'+(s.build?' build':'')+'"><span class="sk-top"><code>'+n+'</code><span class="sk-st">'+(s.build?'To build':'Have it')+'</span></span><span class="sk-w">'+s.what+'</span></li>';}).join('')+'</ul>';}
+  function render(c){
+    var nb=c.skills.filter(function(n){return SK[n].build;}).length;
+    var h='<div class="d-sum'+(c.mock?' has-mock':'')+'"><p class="d-lede">'+c.summary+'</p>'+(c.mock?'<div class="d-mock">'+c.mock+'</div>':'')+'</div>';
+    h+='<section class="d-sec"><h3 class="d-h">How it is built<span class="note">'+c.steps.length+' steps</span></h3><ol class="steps">'+
+       c.steps.map(function(s){return '<li class="w-'+s[0]+'"><span class="st-n" aria-hidden="true"></span><div><p class="st-t">'+s[1]+'</p>'+(s[0]==='y'?'<span class="st-who">You</span>':s[0]==='c'?'<span class="st-who">Client</span>':'')+'</div></li>';}).join('')+'</ol></section>';
+    h+='<section class="d-sec"><h3 class="d-h">Data</h3><div class="d-data"><div class="dd"><p class="dd-k">Takes in</p>'+list(c.input)+'</div><div class="dd"><p class="dd-k">Gives out</p>'+list(c.output)+'</div><div class="dd"><p class="dd-k">Checked by</p>'+list(c.check)+'</div></div>'+(c.extra?'<div class="d-extra">'+c.extra+'</div>':'')+'</section>';
+    h+='<section class="d-sec"><h3 class="d-h">Skills needed<span class="note">'+c.skills.length+' Claude skill'+(c.skills.length>1?'s':'')+(nb?', '+nb+' to build':'')+'</span></h3><div class="d-skills"><div><p class="dd-k">Claude skills</p>'+skillList(c.skills)+'</div><div class="dd"><p class="dd-k">Tools and connectors</p>'+list(c.tools)+'</div><div class="dd"><p class="dd-k">People</p>'+list(c.people)+'</div></div></section>';
+    return h;
+  }
+
+  /* skill counts on the cards */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-skills]'),function(el){
+    var c=byId[el.getAttribute('data-skills')]; if(!c) return;
+    var n=c.skills.length, nb=c.skills.filter(function(k){return SK[k].build;}).length;
+    el.innerHTML=n+' skill'+(n>1?'s':'')+(nb?' &#183; '+nb+' new':'');
+  });
+
+  /* ---------------- skills map ---------------- */
+  (function(){
+    var t=document.getElementById('map-t'); if(!t) return;
+    function uses(n){return CARDS.filter(function(c){return c.skills.indexOf(n)>=0;}).length;}
+    var names=Object.keys(SK).sort(function(a,b){return ((SK[b].build?1:0)-(SK[a].build?1:0))||(uses(b)-uses(a))||a.localeCompare(b);});
+    var h='<thead><tr><th scope="col">Claude skill</th>'+CARDS.map(function(c){return '<th scope="col"><button type="button" class="m-col" data-open="'+c.id+'">'+c.short+'</button></th>';}).join('')+'<th scope="col">Cards</th></tr></thead><tbody>';
+    names.forEach(function(n){
+      var b=SK[n].build;
+      h+='<tr class="'+(b?'is-build':'')+'"><th scope="row"><span class="m-skill"><code>'+n+'</code><span class="sk-st">'+(b?'To build':'Have it')+'</span></span></th>'+
+        CARDS.map(function(c){return c.skills.indexOf(n)>=0?'<td><span class="dot"></span><span class="sr">Used by '+c.short+'</span></td>':'<td></td>';}).join('')+
+        '<td class="m-n">'+uses(n)+'</td></tr>';
+    });
+    t.innerHTML=h+'</tbody>';
+    var nb=names.filter(function(n){return SK[n].build;}).length;
+    var s=document.getElementById('map-sum');
+    if(s) s.innerHTML=(names.length-nb)+' skills we already have &#183; '+nb+' new NextCore skills to build. Click a column to open that card.';
+  })();
+
+  /* ---------------- detail panel ---------------- */
+  var drawer=document.getElementById('drawer'), body=document.getElementById('d-body'), grip=document.getElementById('grip'), scrim=document.getElementById('scrim');
+  var tEl=document.getElementById('d-title'), kEl=document.getElementById('d-kicker'), wEl=document.getElementById('d-who');
+  var bPrev=document.getElementById('d-prev'), bNext=document.getElementById('d-next'), bWide=document.getElementById('d-wide'), bWideL=document.getElementById('d-wide-l'), bClose=document.getElementById('d-close');
+  var MINW=360, DEFW=640, w=DEFW, prevW=DEFW, current=null, lastFocus=null, drag=false;
+  try{var saved=parseInt(localStorage.getItem('nextcore-dw'),10); if(saved>0) w=saved;}catch(e){}
+  function vw(){return document.documentElement.clientWidth||window.innerWidth;}
+  function clamp(v){var mx=vw();return Math.max(Math.min(MINW,mx),Math.min(v,mx));}
+  function setW(v,save){
+    w=clamp(v); drawer.style.setProperty('--dw',w+'px');
+    grip.setAttribute('aria-valuenow',String(Math.round(w))); grip.setAttribute('aria-valuemax',String(vw()));
+    var full=w>=vw()-4; bWide.setAttribute('aria-pressed',full?'true':'false'); bWideL.textContent=full?'Narrow':'Full width';
+    if(save){try{localStorage.setItem('nextcore-dw',String(Math.round(w)));}catch(e){}}
+  }
+  function mark(id){Array.prototype.forEach.call(document.querySelectorAll('.card'),function(b){b.setAttribute('aria-expanded',b.getAttribute('data-open')===id?'true':'false');});}
+  function open(id,from){
+    var c=byId[id]; if(!c) return;
+    if(!current) lastFocus=from||document.activeElement;
+    current=c;
+    kEl.innerHTML=c.kicker; tEl.innerHTML=c.title; wEl.className='who sm '+c.who[0]; wEl.innerHTML=c.who[1];
+    body.innerHTML=render(c); body.scrollTop=0;
+    drawer.hidden=false; scrim.hidden=false; setW(w); mark(id);
+    bPrev.disabled=c.i===0; bNext.disabled=c.i===CARDS.length-1;
+    try{history.replaceState(null,'','#'+id);}catch(e){}
+    try{tEl.focus({preventScroll:true});}catch(e){tEl.focus();}
+  }
+  function close(){
+    if(!current) return;
+    drawer.hidden=true; scrim.hidden=true; current=null; mark('');
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+    if(lastFocus&&lastFocus.focus){try{lastFocus.focus({preventScroll:true});}catch(e){lastFocus.focus();}}
+  }
+  function step(d){if(!current) return; var n=CARDS[current.i+d]; if(n) open(n.id);}
+  function toggleWide(){ if(w>=vw()-4){setW(prevW<vw()-4?prevW:DEFW,true);} else {prevW=w;setW(vw(),true);} }
+
+  document.addEventListener('click',function(e){
+    var b=e.target.closest?e.target.closest('[data-open]'):null;
+    if(b){open(b.getAttribute('data-open'),b);}
+  });
+  bPrev.addEventListener('click',function(){step(-1);});
+  bNext.addEventListener('click',function(){step(1);});
+  bWide.addEventListener('click',toggleWide);
+  bClose.addEventListener('click',close);
+  scrim.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){
+    if(!current) return;
+    if(e.key==='Escape'){close();}
+    else if(e.altKey&&e.key==='ArrowRight'){step(1);e.preventDefault();}
+    else if(e.altKey&&e.key==='ArrowLeft'){step(-1);e.preventDefault();}
+  });
+
+  grip.addEventListener('pointerdown',function(e){drag=true;try{grip.setPointerCapture(e.pointerId);}catch(x){}document.documentElement.classList.add('resizing');e.preventDefault();});
+  grip.addEventListener('pointermove',function(e){if(drag) setW(vw()-e.clientX);});
+  function endDrag(){if(!drag) return; drag=false; document.documentElement.classList.remove('resizing'); setW(w,true);}
+  grip.addEventListener('pointerup',endDrag); grip.addEventListener('pointercancel',endDrag);
+  grip.addEventListener('dblclick',toggleWide);
+  grip.addEventListener('keydown',function(e){
+    var k=e.key;
+    if(k==='ArrowLeft'){setW(w+40,true);e.preventDefault();}
+    else if(k==='ArrowRight'){setW(w-40,true);e.preventDefault();}
+    else if(k==='Home'){setW(MINW,true);e.preventDefault();}
+    else if(k==='End'){setW(vw(),true);e.preventDefault();}
+  });
+
+  function fromHash(){var id=(location.hash||'').slice(1); if(byId[id]) open(id); else if(current&&!id) close();}
+  window.addEventListener('hashchange',fromHash);
+
+  /* ---------------- loop arrow (wide screens) ---------------- */
+  var flow=document.getElementById('flow'), svg=document.getElementById('loop'), path=document.getElementById('loop-path'), tag=document.getElementById('loop-tag');
+  var dataCard=document.getElementById('c-data'), prof=document.getElementById('c-profile');
   var mq=window.matchMedia('(min-width: 1240px)');
   function draw(){
+    if(!flow||!svg||!dataCard||!prof) return;
     if(!mq.matches){svg.setAttribute('hidden','');tag.hidden=true;return;}
-    var f=flow.getBoundingClientRect(), a=lane.getBoundingClientRect(), p=prof.getBoundingClientRect();
-    svg.removeAttribute('hidden');tag.hidden=false;
-    svg.setAttribute('width',f.width);svg.setAttribute('height',f.height);
-    svg.setAttribute('viewBox','0 0 '+f.width+' '+f.height);
-    /* straight up from the Data Gathering lane into the profile */
-    var x=a.left-f.left+26, y1=a.top-f.top, y2=p.bottom-f.top+6;
-    path.setAttribute('d','M'+x+' '+y1+' V'+y2);
+    svg.removeAttribute('hidden'); tag.hidden=false;
+    var f=flow.getBoundingClientRect(), a=dataCard.getBoundingClientRect(), p=prof.getBoundingClientRect();
+    svg.setAttribute('width',f.width); svg.setAttribute('height',f.height); svg.setAttribute('viewBox','0 0 '+f.width+' '+f.height);
+    var x=a.left-f.left+28, y1=a.top-f.top, py=p.top-f.top+p.height/2, px=p.left-f.left-4, r=10;
+    var d=(x<px-r)?('M'+x+' '+y1+' V'+(py+r)+' Q'+x+' '+py+' '+(x+r)+' '+py+' H'+px):('M'+x+' '+y1+' V'+(p.bottom-f.top+6));
+    path.setAttribute('d',d);
     var midY=(p.bottom+a.top)/2-f.top;
-    tag.style.left=Math.max(0,x-12-tag.offsetWidth)+'px';
-    tag.style.top=(midY-tag.offsetHeight/2)+'px';
+    tag.style.left=Math.max(0,x-12-tag.offsetWidth)+'px'; tag.style.top=(midY-tag.offsetHeight/2)+'px';
   }
   draw();
   if(window.ResizeObserver){new ResizeObserver(draw).observe(flow);}
-  window.addEventListener('resize',draw);
+  window.addEventListener('resize',function(){draw(); if(current) setW(w);});
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(draw);}
+
+  fromHash();
 })();
 </script>
 </body>
