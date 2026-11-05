@@ -516,7 +516,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     'nextcore':{build:true,what:'Runs the system: profile, build order, queue, checks, filing, rebuilds'},
     'nextcore-proposal':{build:true,what:'Copies the BIR CAS proposal template and fills it from the profile'},
     'nextcore-data-page':{build:true,what:'Builds the Data Gathering page from the "to collect" fields'},
-    'nextcore-sla':{build:true,what:'Fills the Sales Proposal + SLA template, renders the PDF, runs the page-fit check'},
+    'nextcore-sla':{what:'Builds the Proposal + SLA from the profile: owner confirms figures, render, check.py page-fit and copy rules, md5 filing'},
     'technext-presentations':{what:'Builds the 1600x900 TechNext deck, share link and PDF'},
     'technext-social-posts':{what:'Designs and renders 3:4 posts and 9:16 reels, runs audit.py'},
     'nexi-video':{what:'Makes the Nexi video and runs the release gate'},
@@ -567,8 +567,8 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
       '<li>Who TechNext is</li><li>What we heard: their pain points</li><li>The Odoo apps for them</li>'+
       '<li>NextSprint: how we work</li><li>Phases and timeline</li><li>Next step</li></ul></div>',
     pages:'<div class="box"><p class="dd-k">The four pages</p><ul class="dl">'+
-      '<li>p1 Value and Why choose us in the intro title, NextSprint, outcomes</li><li>p2 Scope by phase, Gantt, response times P1-P4</li>'+
-      '<li>p3 Why TechNext, investment (Odoo licence shown separately)</li><li>p4 Terms, next steps, sign-off</li></ul></div>',
+      '<li>p1 Value title, Why choose us top 10, services, proof</li><li>p2 NextSprint method and 7 steps, invoice timing, in and out</li>'+
+      '<li>p3 Investment only here: TechNext fee, Odoo licence options (paid to Odoo), P1-P4 service levels</li><li>p4 11 terms, next steps, sign-off</li></ul></div>',
     rules:RULES,
     tree:'<pre class="tree"><span class="d">01. Client Folder\\</span>\n'+
       '  <span class="d">14. &lt;Client name&gt;\\</span>       <span class="m">next free number</span>\n'+
@@ -649,17 +649,17 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
      skills:['nextcore-data-page','web-design-engineer','impeccable','marketing-skills:copywriting'],
      tools:['Private hosting (to decide)','Answer storage: Odoo CRM or Drive (to decide)'],people:['None to build it; the client fills it in']},
 
-    {id:'sla',stage:'02 Build materials',mat:true,icon:'doc',kicker:'Builds 3rd',title:'Service Level Agreement',short:'SLA',who:['you','You confirm figures'],fmt:['PDF'],mock:M.sla,
-     p:'4-page A4 Proposal + SLA in the newer format.',
-     summary:'The 4-page A4 Proposal + SLA from our newer Sales Proposal + SLA template, filled from the profile. Compact and in TechNext branding.',
-     steps:[['a','Copy the Sales Proposal + SLA template'],['a','Intro title: value and Why choose us'],['a','Scope by phase and Gantt'],['a','Response times P1 to P4'],['a','Investment shown once, tagged Estimate'],['y','You confirm the figures'],['a','Page-fit check and PDF']],
-     input:['Scope, phases, users, apps','Figures (you confirm)','Data Gathering answers, when in'],
-     output:['&lt;Client&gt; - TechNext Proposal and Service Level Agreement Rev 1.x.pdf','Preview PNGs in 03'],
-     check:['check.py: every page fits above the footer','Price shown once, tagged Estimate','Odoo licence shown as paid to Odoo'],
-     template:['Sales Proposal + SLA template (Drive 02/25.)'],
+    {id:'sla',stage:'02 Build materials',mat:true,icon:'doc',kicker:'Builds 3rd',title:'Service Level Agreement',short:'SLA',who:['you','You confirm figures'],fmt:['HTML','PDF'],mock:M.sla,
+     p:'4-page A4 Proposal + SLA from our proven pricing proposal template.',
+     summary:'The 4-page A4 Proposal and Service Level Agreement, built by nextcore-sla from the profile. Same pages and design as our latest owner-approved pricing proposal, now client-agnostic: every client value and figure sits in one data file (sla.json). Interactive HTML and PDF from one template.',
+     steps:[['a','Profile to sla.json: name, logo, scope by phase, apps, users'],['a','p1 Value title and Why choose us, ranked for the client'],['a','p2 NextSprint, invoice timing, what is in and out'],['a','p3 TechNext fee, Odoo licence options, P1-P4 service levels'],['a','Draft render, stamped Figures to confirm'],['y','You confirm the figures'],['a','Final render, check.py page-fit and copy rules'],['a','File in 03 with md5; old revision to 00. old']],
+     input:['client-profile.json','Fees and Odoo rates (you confirm)','Data Gathering answers, when in'],
+     output:['&lt;Client&gt; - TechNext Proposal and Service Level Agreement Rev 1.x.pdf','Interactive HTML + preview PNGs in 03'],
+     check:['check.py: 4 pages, 6 mm free above every footer','Prices only on page 3, each figure once, no VAT wording','Odoo licence paid to Odoo; no other client&#8217;s name'],
+     template:['NextCore SLA template (SLA builder folder in Drive 24.)'],
      extra:X.pages,
      skills:['nextcore-sla','impeccable','marketing-skills:copy-editing','anthropic-skills:pdf'],
-     tools:['build and check scripts','Headless Chrome PDF, pymupdf previews'],people:['You confirm the figures']},
+     tools:['sla.py: init, figures, confirm, render, check, deliver','Headless Chrome PDF, pymupdf previews'],people:['You confirm the figures']},
 
     {id:'deck',stage:'02 Build materials',mat:true,icon:'deck',kicker:'Builds 4th',title:'Presentation',short:'Deck',who:['auto','Automatic'],fmt:['HTML','PDF'],mock:M.deck,
      p:'Short TechNext presentation written for this client.',
