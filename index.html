@@ -514,7 +514,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   /* ---------------- Claude skills ---------------- */
   var SK={
     'nextcore':{build:true,what:'Runs the system: profile, build order, queue, checks, filing, rebuilds'},
-    'nextcore-proposal':{build:true,what:'Copies the BIR CAS proposal template and fills it from the profile'},
+    'nextcore-proposal':{what:'Builds the interactive Odoo-style proposal from the profile (presets bir_cas and erp): owner confirms prices, single HTML + A4 PDF, QA, md5 filing'},
     'nextcore-data-page':{build:true,what:'Builds the Data Gathering page from the "to collect" fields'},
     'nextcore-sla':{what:'Builds the Proposal + SLA from the profile: owner confirms figures, render, check.py page-fit and copy rules, md5 filing'},
     'nextcore-presentation':{what:'Builds one self-contained 6-slide HTML deck from the profile on the TechNext deck engine; check, screenshots, md5 filing'},
@@ -627,15 +627,15 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
      skills:['nextcore'],tools:['None'],people:['You, only if you want to change the default']},
 
     {id:'proposal',stage:'02 Build materials',mat:true,first:true,icon:'plane',kicker:'Builds 1st',title:'Sales Proposal',short:'Proposal',who:['you','You confirm prices'],fmt:['HTML','PDF'],mock:M.proposal,
-     p:'Interactive Odoo-style proposal from the BIR CAS template.',
-     summary:'An interactive proposal in the Odoo quotation style, copied from our BIR CAS proposal template and filled from the profile.',
-     steps:[['a','Copy the BIR CAS proposal template'],['a','Fill name, logo, services and timeline'],['a','Intro: value and Why choose us'],['a','Part 1: their services, animated, plus FAQ'],['a','Part 2: quote lines, options, payment plan'],['y','You confirm the prices'],['a','Part 3: terms, Accept and sign'],['a','Render PDF and previews']],
-     input:['Name and logo','Services and Odoo apps','Timeline and phases','Prices (you confirm)'],
-     output:['proposal.html (private link)','PDF + preview PNGs in 01. Sales Proposal'],
-     check:['Impeccable critique and audit','hero_check.py 0 errors','Prices shown once, only in Part 2'],
-     template:['BIR CAS sales proposal template (Drive 02/21.)'],
-     skills:['nextcore-proposal','web-design-engineer','hero-section-design','impeccable','find-animation-opportunities','marketing-skills:copywriting','anthropic-skills:pdf'],
-     tools:['Headless Chrome for PDF and checks','Private hosting (to decide)'],people:['You confirm the prices']},
+     p:'Interactive Odoo-style proposal in three parts, from our BIR CAS proposal.',
+     summary:'An interactive proposal in the Odoo quotation style, built by nextcore-proposal from our BIR CAS proposal, now data-driven. Part 1 shows their solution, Part 2 is the only place with prices, and Part 3 has the SLA, terms and Accept and sign. There are two presets: bir_cas for BIR CAS clients and erp for everyone else. One self-contained HTML and an A4 PDF.',
+     steps:[['a','Profile to proposal.json'],['a','Pick 8 showcase scenes from their apps and pain points'],['a','Rank the Why choose us top 10 from the pain points'],['a','Draft prices from the preset rule'],['y','You confirm the prices (any later price edit sends it back to draft)'],['a','Build the single HTML'],['a','Render the A4 PDF and previews'],['a','File in 01 with md5; old revision to 00. old']],
+     input:['client-profile.json','Services, Odoo apps and pain points','Timeline and phases','Prices (you confirm)'],
+     output:['One self-contained proposal HTML with #part-1, #part-2 and #part-3 links','A4 PDF + preview PNGs in 01. Sales Proposal'],
+     check:['hero_check.py 0 errors on all 5 views','Prices only in Part 2, each printed once in the PDF','Deep links open the right place; no sideways scroll on a 390 px phone','Copy rules and client isolation; Impeccable critique and audit'],
+     template:['NextCore proposal template, from the BIR CAS proposal (Proposal builder folder in Drive 24.)'],
+     skills:['nextcore-proposal','hero-section-design','impeccable','anthropic-skills:pdf'],
+     tools:['One command-line tool for the whole run','Headless Chrome for PDF and checks','Private hosting (to decide)'],people:['You confirm the prices']},
 
     {id:'data',stage:'02 Build materials',mat:true,icon:'form',kicker:'Builds 2nd',title:'Data Gathering page',short:'Data page',who:['auto','Automatic'],fmt:['HTML'],mock:M.data,
      p:'Private page that collects every detail we still need.',
