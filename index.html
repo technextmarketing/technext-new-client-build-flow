@@ -93,7 +93,9 @@ h1{font:800 clamp(38px,5.4vw,60px)/1 var(--f-head);color:var(--ink);letter-spaci
 .grid-k{margin:0 0 12px;font:700 11px/1.2 var(--f-head);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
 .grid-k::after{content:"";flex:1;height:1px;background:var(--line)}
 .group{border:1px solid var(--blue-100);border-radius:var(--r-l);padding:16px;background:rgba(234,240,251,.45)}
-.group-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:18px;row-gap:18px}
+.group-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));column-gap:18px;row-gap:18px}
+.group-row .step{grid-column:span 2}
+.group-row .step.wide{grid-column:span 3}
 .group-row .step > .card{flex:1}
 .sub-k{grid-column:1 / -1;margin:6px 0 -6px;font:700 11px/1.2 var(--f-head);letter-spacing:.09em;text-transform:uppercase;color:var(--blue-700)}
 
@@ -337,6 +339,15 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 .post i{display:block;height:3px;border-radius:2px;background:var(--line)}
 .post i + i{width:70%}
 .post .pcta{margin-top:auto;height:9px;width:62%;border-radius:999px;background:var(--blue)}
+.m-drip{display:flex;align-items:center;justify-content:center;gap:8px}
+.m-drip .dr{flex:0 0 31%;aspect-ratio:1;background:var(--paper);border:1px solid var(--blue-100);border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:3px;box-shadow:var(--shadow-sm)}
+.m-drip .dr:nth-child(2){transform:translateY(-6px)}
+.dr .lgs{display:flex;justify-content:space-between}
+.dr .lgs span{width:14px;height:4px;border-radius:2px;background:var(--blue)}
+.dr .lgs span + span{background:var(--odoo)}
+.dr b{font:800 7.5px/1.15 var(--f-head);color:var(--ink);margin-top:3px}
+.dr i{display:block;height:2px;border-radius:2px;background:var(--line);width:80%}
+.dr .vis{margin-top:auto;height:34%;border-radius:4px;background:var(--blue-050);border:1px solid var(--blue-100)}
 .m-video{display:flex;align-items:center;justify-content:center}
 .m-video .vid{position:relative;width:86%;aspect-ratio:16/9;max-height:100%;background:var(--ink);border-radius:8px;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center}
 .vid .nexi{position:absolute;left:8%;bottom:12%;width:22%;aspect-ratio:1;border-radius:32%;background:var(--paper);display:flex;gap:16%;align-items:center;justify-content:center}
@@ -365,6 +376,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 }
 @media (max-width:860px){
   .st-flow,.group-row{grid-template-columns:minmax(0,1fr)}
+  .group-row .step,.group-row .step.wide{grid-column:auto}
   .st-flow:not(.grid) .step + .step::before{left:50%;top:-20px;width:2px;height:12px;margin-left:-1px}
   .st-flow:not(.grid) .step + .step::after{left:50%;top:-9px;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--blue);border-bottom:0}
   .st-flow{row-gap:22px}
@@ -384,13 +396,13 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 <div class="page">
   <header class="top">
     <div>
-      <p class="eyebrow">TechNext &#183; Internal project &#183; Plan v5</p>
+      <p class="eyebrow">TechNext &#183; Internal project &#183; Plan v6</p>
       <div class="brand">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/><path d="M10 13L21 3"/></svg>
         <h1>NextCore</h1>
       </div>
       <p class="tagline">Client information in, every client material out.</p>
-      <p class="lede">NextCore is a production system for client materials. You give it a new client's information once. It turns that into one client profile, then automatically builds the Data Gathering page, Sales Proposal, SLA, Presentation and marketing materials from it, checks each one, and files them for you.</p>
+      <p class="lede">NextCore is a production system for client materials. You give it a new client's information once. It turns that into one client profile, then automatically builds the Sales Proposal, SLA, Presentation and marketing materials (a drip set and a Nexi video) from it, checks each one, and files them for you.</p>
       <p class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a5 5 0 0 1-4.2-2.3L4.3 14a1.5 1.5 0 0 1 2.4-1.8L9 14.5"/></svg>Click any card to open its build pipeline, data and skills. Drag the panel's edge to make it wider.</p>
     </div>
     <div class="legend" aria-label="Legend">
@@ -422,12 +434,11 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
         <div class="group-row">
           <p class="sub-k">Client documents</p>
           <div class="step"><div class="slot" data-slot="proposal"></div></div>
-          <div class="step"><div class="slot" data-slot="data"></div></div>
           <div class="step"><div class="slot" data-slot="sla"></div></div>
-          <p class="sub-k">Presentation and marketing materials</p>
           <div class="step"><div class="slot" data-slot="deck"></div></div>
-          <div class="step"><div class="slot" data-slot="social"></div></div>
-          <div class="step"><div class="slot" data-slot="nexi"></div></div>
+          <p class="sub-k">Marketing materials</p>
+          <div class="step wide"><div class="slot" data-slot="drip"></div></div>
+          <div class="step wide"><div class="slot" data-slot="nexi"></div></div>
         </div>
       </div>
     </section>
@@ -462,14 +473,13 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   <section class="decide" aria-labelledby="dq">
     <h2 id="dq">To decide before we build NextCore</h2>
     <ul>
-      <li>Where each client's HTML materials are hosted (Sales Proposal, Data Gathering page, Presentation): a private link per client, with no other client's links.</li>
-      <li>Where the Data Gathering answers and files are saved: the client's Odoo CRM record, or their folder on the Marketing drive.</li>
-      <li>Which materials are ticked by default in the build order: all six, or a lighter set for small clients.</li>
+      <li>Where each client's HTML materials are hosted (Sales Proposal, Presentation): a private link per client, with no other client's links.</li>
+      <li>Which materials are ticked by default in the build order: all five, or a lighter set for small clients.</li>
       <li>Marketing materials name the client only with their OK. Without it, should NextCore make industry-only versions?</li>
     </ul>
   </section>
 
-  <p class="foot">TechNext &#183; NextCore &#183; Plan v5, 5 Nov 2026 &#183; Northgate Trading Corp. is sample data, not a real client</p>
+  <p class="foot">TechNext &#183; NextCore &#183; Plan v6, 5 Nov 2026 &#183; Northgate Trading Corp. is sample data, not a real client</p>
 </div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -515,11 +525,10 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   var SK={
     'nextcore':{build:true,what:'Runs the system: profile, build order, queue, checks, filing, rebuilds'},
     'nextcore-proposal':{what:'Builds the interactive Odoo-style proposal from the profile (presets bir_cas and erp): owner confirms prices, single HTML + A4 PDF, QA, md5 filing'},
-    'nextcore-data-page':{build:true,what:'Builds the Data Gathering page from the "to collect" fields'},
     'nextcore-sla':{what:'Builds the Proposal + SLA from the profile: owner confirms figures, render, check.py page-fit and copy rules, md5 filing'},
     'nextcore-presentation':{what:'Builds one self-contained 6-slide HTML deck from the profile on the TechNext deck engine; check, screenshots, md5 filing'},
     'nextcore-nexi-video':{what:'Builds the client Nexi video on the TechNext grid world, structured by NextSprint; strict release gate, 16:9 + 9:16'},
-    'technext-social-posts':{what:'Designs and renders 3:4 posts and 9:16 reels, runs audit.py'},
+    'marketing-team':{what:'Pixel, the team designer, makes drip sets in Drip Studio'},
     'nexi-character':{what:'Keeps Nexi in character: calm reactions, voice, attitude'},
     'improve-animations':{what:'Reviews and tunes slide motion'},
     'impeccable':{what:'Design critique (/40) and audit (/20), then fixes'},
@@ -557,8 +566,8 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
       '  <span class="k">"opening_balances"</span>: <span class="todo">"to collect"</span>,\n'+
       '  <span class="k">"announce_ok"</span>: <span class="todo">"to collect"</span>\n}</pre></div>',
     order:'<div class="box"><p class="dd-k">Build order for this client (example)</p><ul class="ticks">'+
-      '<li>1 Sales Proposal</li><li>2 Data Gathering page</li><li>3 Service Level Agreement</li>'+
-      '<li>4 Presentation</li><li>5 Social media posts</li><li class="off">6 Nexi video (skipped: no OK to name the client yet)</li></ul></div>',
+      '<li>1 Sales Proposal</li><li>2 Service Level Agreement</li>'+
+      '<li>3 Presentation</li><li>4 Marketing drip</li><li class="off">5 Nexi video (skipped: no OK to name the client yet)</li></ul></div>',
     asks:'<div class="box"><p class="dd-k">What the page asks for</p><ul class="dl">'+
       '<li>Registration: BIR Form 2303, TIN, branch codes</li><li>Branches, people and Odoo users</li>'+
       '<li>How they work today, current software</li><li>Chart of accounts, opening balances</li>'+
@@ -573,10 +582,9 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     tree:'<pre class="tree"><span class="d">01. Client Folder\\</span>\n'+
       '  <span class="d">14. &lt;Client name&gt;\\</span>       <span class="m">next free number</span>\n'+
       '    <span class="d">01. Sales Proposal\\</span>\n'+
-      '    <span class="d">02. Data Gathering\\</span>\n'+
-      '    <span class="d">03. Service Level Agreement\\</span>\n'+
+            '    <span class="d">03. Service Level Agreement\\</span>\n'+
       '    <span class="d">04. Presentation\\</span>\n'+
-      '    <span class="d">05. Social Media Posts\\</span>\n'+
+      '    <span class="d">05. Marketing Drip\\</span>\n'+
       '    <span class="d">06. Nexi Video\\</span>\n'+
       '    <span class="d">_build\\</span>                 <span class="m">profile, sources, not for the client</span>\n'+
       '    <span class="d">00. old\\</span>                <span class="m">superseded revisions</span></pre>'
@@ -586,7 +594,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     data:'<div class="mock m-form" aria-hidden="true"><div class="mf-steps"><span class="on">Company</span><span>People</span><span>Brand</span></div><div class="mf-field"><em>Registered name</em><b>Northgate Trading Corp.</b></div><div class="mf-field"><em>TIN + branch code</em><b class="todo">To collect</b></div><div class="mf-drop">Drop Form 2303, logo, price list</div></div>',
     deck:'<div class="mock m-deck" aria-hidden="true"><div class="slide"><div class="sl-top"><span class="sl-logo">TechNext</span><span class="sl-x">&#215;</span><span class="sl-client">CLIENT LOGO</span></div><div class="sl-t">What we heard from your team</div><div class="sl-rows"><i></i><i></i><i></i></div></div><div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div></div>',
     sla:'<div class="mock m-pages" aria-hidden="true"><div class="pg" style="--i:0"><i class="hd"></i><i></i><i class="w7"></i><i></i><i class="w5"></i><em>p1</em></div><div class="pg" style="--i:1"><i class="hd"></i><i class="g" style="--x:0%;--w:45%"></i><i class="g" style="--x:30%;--w:40%"></i><i class="g" style="--x:60%;--w:40%"></i><i class="w7"></i><em>p2</em></div><div class="pg" style="--i:2"><i class="hd"></i><span class="row"><i></i><i></i></span><span class="row"><i></i><i></i></span><span class="row"><i></i><i></i></span><em>p3</em></div><div class="pg" style="--i:3"><i class="hd"></i><i></i><i class="w7"></i><i></i><span class="sig"><i></i><i></i></span><em>p4</em></div></div>',
-    social:'<div class="mock m-social" aria-hidden="true"><div class="post p1"><span class="lgs"><span></span><span></span></span><b>Stock counts that add up</b><i></i><i></i><span class="pcta"></span></div><div class="post p2"><span class="lgs"><span></span><span></span></span><b>Welcome aboard, Northgate</b><i></i><i></i><span class="pcta"></span></div><div class="post p3"><span class="lgs"><span></span><span></span></span><b>One set of books</b><i></i><i></i><span class="pcta"></span></div></div>',
+    drip:'<div class="mock m-drip" aria-hidden="true"><div class="dr"><span class="lgs"><span></span><span></span></span><b>Stock counts that add up</b><i></i><span class="vis"></span></div><div class="dr"><span class="lgs"><span></span><span></span></span><b>One set of books</b><i></i><span class="vis"></span></div><div class="dr"><span class="lgs"><span></span><span></span></span><b>Orders to invoices</b><i></i><span class="vis"></span></div></div>',
     nexi:'<div class="mock m-video" aria-hidden="true"><div class="vid"><span class="nexi"><i></i><i></i></span><span class="play"></span><span class="cap"></span><em>16:9</em></div></div>'
   };
 
@@ -606,7 +614,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 
     {id:'profile',stage:'01 Input',icon:'profile',kicker:'Prepare',title:'Client profile',short:'Profile',who:['auto','Automatic'],
      p:'One file every material reads from, including a clean logo and colours.',
-     summary:'NextCore turns the raw info into one structured profile. Every material reads from it, so a name, a figure or a colour is typed once and matches everywhere. Gaps are marked "to collect" and become questions on the Data Gathering page.',
+     summary:'NextCore turns the raw info into one structured profile. Every material reads from it, so a name, a figure or a colour is typed once and matches everywhere. Gaps are marked "to collect" so you can see what is still missing.',
      steps:[['a','Read the notes and attachments'],['a','Pull company facts from their website'],['a','Brand kit: logo cut out, brand colours picked'],['a','Write client-profile.json'],['a','Mark gaps as "to collect"']],
      input:['Raw notes','Their website','Their logo'],
      output:['client-profile.json','logo-clean.png and colours'],
@@ -617,12 +625,12 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 
     {id:'order',stage:'01 Input',icon:'list',kicker:'Plan',title:'Build order',short:'Order',who:['you','You tick (optional)'],
      p:'Which materials to build for this client, in queue order.',
-     summary:'NextCore suggests which materials to build for this client and in what order. By default it builds all six, Sales Proposal first. You can untick any of them.',
+     summary:'NextCore suggests which materials to build for this client and in what order. By default it builds all five, Sales Proposal first. You can untick any of them.',
      steps:[['a','Suggest materials from the profile'],['y','You tick or untick (optional)'],['a','Queue the builders: Sales Proposal first'],['a','Start the builders']],
      input:['Client profile'],
      output:['Build queue for stage 02'],
      check:['A material that needs a missing field waits or asks for it'],
-     template:['Default order: Proposal, Data page, SLA, Presentation, Social, Nexi'],
+     template:['Default order: Proposal, SLA, Presentation, Drip, Nexi'],
      extra:X.order,
      skills:['nextcore'],tools:['None'],people:['You, only if you want to change the default']},
 
@@ -637,23 +645,11 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
      skills:['nextcore-proposal','hero-section-design','impeccable','anthropic-skills:pdf'],
      tools:['One command-line tool for the whole run','Headless Chrome for PDF and checks','Private hosting (to decide)'],people:['You confirm the prices']},
 
-    {id:'data',stage:'02 Build materials',mat:true,icon:'form',kicker:'Builds 2nd',title:'Data Gathering page',short:'Data page',who:['auto','Automatic'],fmt:['HTML'],mock:M.data,
-     p:'Private page that collects every detail we still need.',
-     summary:'The client&#8217;s digital space for full details. A private page that asks for everything still marked "to collect", already filled with what we know. When the client answers, card 13 updates the profile and rebuilds what changed.',
-     steps:[['a','List the "to collect" fields'],['a','Group them: company, people, accounts, products, brand'],['a','Pre-fill what we already know'],['a','Add file drops: Form 2303, logo, price list'],['a','Phone test: every answer saves'],['a','Private link']],
-     input:['"To collect" fields','What we already know'],
-     output:['data-gathering.html (private link)','Answers and files, fed to card 13'],
-     check:['Opens on a phone','Every answer saves','No other client&#8217;s data'],
-     template:['New: built by nextcore-data-page'],
-     extra:X.asks,
-     skills:['nextcore-data-page','web-design-engineer','impeccable','marketing-skills:copywriting'],
-     tools:['Private hosting (to decide)','Answer storage: Odoo CRM or Drive (to decide)'],people:['None to build it; the client fills it in']},
-
-    {id:'sla',stage:'02 Build materials',mat:true,icon:'doc',kicker:'Builds 3rd',title:'Service Level Agreement',short:'SLA',who:['you','You confirm figures'],fmt:['HTML','PDF'],mock:M.sla,
+    {id:'sla',stage:'02 Build materials',mat:true,icon:'doc',kicker:'Builds 2nd',title:'Service Level Agreement',short:'SLA',who:['you','You confirm figures'],fmt:['HTML','PDF'],mock:M.sla,
      p:'4-page A4 Proposal + SLA from our proven pricing proposal template.',
      summary:'The 4-page A4 Proposal and Service Level Agreement, built by nextcore-sla from the profile. Same pages and design as our latest owner-approved pricing proposal, now client-agnostic: every client value and figure sits in one data file (sla.json). Interactive HTML and PDF from one template.',
      steps:[['a','Profile to sla.json: name, logo, scope by phase, apps, users'],['a','p1 Value title and Why choose us, ranked for the client'],['a','p2 NextSprint, invoice timing, what is in and out'],['a','p3 TechNext fee, Odoo licence options, P1-P4 service levels'],['a','Draft render, stamped Figures to confirm'],['y','You confirm the figures'],['a','Final render, check.py page-fit and copy rules'],['a','File in 03 with md5; old revision to 00. old']],
-     input:['client-profile.json','Fees and Odoo rates (you confirm)','Data Gathering answers, when in'],
+     input:['client-profile.json','Fees and Odoo rates (you confirm)'],
      output:['&lt;Client&gt; - TechNext Proposal and Service Level Agreement Rev 1.x.pdf','Interactive HTML + preview PNGs in 03'],
      check:['check.py: 4 pages, 6 mm free above every footer','Prices only on page 3, each figure once, no VAT wording','Odoo licence paid to Odoo; no other client&#8217;s name'],
      template:['NextCore SLA template (SLA builder folder in Drive 24.)'],
@@ -661,7 +657,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
      skills:['nextcore-sla','impeccable','marketing-skills:copy-editing','anthropic-skills:pdf'],
      tools:['sla.py: init, figures, confirm, render, check, deliver','Headless Chrome PDF, pymupdf previews'],people:['You confirm the figures']},
 
-    {id:'deck',stage:'02 Build materials',mat:true,icon:'deck',kicker:'Builds 4th',title:'Presentation',short:'Deck',who:['auto','Automatic'],fmt:['HTML'],mock:M.deck,
+    {id:'deck',stage:'02 Build materials',mat:true,icon:'deck',kicker:'Builds 3rd',title:'Presentation',short:'Deck',who:['auto','Automatic'],fmt:['HTML'],mock:M.deck,
      p:'One self-contained 6-slide HTML deck for this client.',
      summary:'One self-contained HTML presentation for this client, built by nextcore-presentation on the TechNext deck engine and house design: their logo, their problems, and the Odoo apps that solve them. It works offline, with no launcher, share link, presenter mode, settings or PDF. The only controls are arrow keys, click or tap, swipe and the page number.',
      steps:[['a','Profile to deck.json: the words for the six slides (edit there)'],['a','Build one HTML; check_deck.py runs at the end'],['a','Screenshots: six slides at 1600x900, phone view, print check'],['a','Impeccable critique and audit, plus a motion review'],['a','File in 04 with md5; old revision to 00. old']],
@@ -673,18 +669,18 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
      skills:['nextcore-presentation','impeccable','find-animation-opportunities','improve-animations'],
      tools:['build_deck.py, check_deck.py, shots.py, deliver.py','technext-presentations engine and design (reference only, not edited)','Headless Chrome'],people:['None to build it']},
 
-    {id:'social',stage:'02 Build materials',mat:true,icon:'image',kicker:'Builds 5th',title:'Social media posts',short:'Social',who:['auto','Automatic'],fmt:['PNG','MP4','TXT'],mock:M.social,
-     p:'3:4 posts, a 9:16 reel and captions about their project.',
-     summary:'Marketing posts about the client&#8217;s project and industry, each designed from scratch in TechNext branding. The client is named only with their OK; otherwise the posts are industry-only.',
-     steps:[['a','Pick angles: their industry, their problem, the Odoo fix'],['a','One original concept per post'],['a','Render 3:4 posts, 2160x2880'],['a','Cut a 9:16 reel, 1080x1920'],['a','Captions for Facebook, Instagram, LinkedIn'],['a','audit.py 0 errors']],
+    {id:'drip',stage:'02 Build materials',mat:true,icon:'image',kicker:'Builds 4th',title:'Marketing drip',short:'Drip',who:['auto','Automatic'],fmt:['PNG','TXT'],mock:M.drip,
+     p:'A set of on-brand drip images about their industry and Odoo fix, with captions.',
+     summary:'A set of marketing drip images in the technext.asia brand, made with TechNext Drip Studio. Each drip has a fixed frame (TechNext logo top-left, Odoo Partner badge top-right, headline and subline) and one visual below: an Odoo screen, a chart, a phone or Nexi. NextCore builds a set of 3, 6 or 9 for the client&#8217;s industry and the Odoo apps they need, each with a caption and hashtags. The client is named only with their OK; otherwise the set is industry-only.',
+     steps:[['a','Pick the category and industry from the profile'],['a','Write the set: headline, subline, caption and hashtags per drip'],['a','One visual per drip: Odoo screen, chart, phone or Nexi'],['a','Render the PNGs at 2160 px'],['a','Copy rules check'],['a','File in 05 with md5; old set to 00. old']],
      input:['Industry and pain points','Odoo apps','Name and logo (with their OK)'],
-     output:['3:4 posts (PNG)','9:16 reel (MP4)','captions.txt in 05. Social Media Posts'],
-     check:['audit.py 0 errors','TechNext logo top-left, Odoo top-right','Unique design per post'],
-     template:['technext-social-posts kit'],
-     skills:['technext-social-posts','marketing-skills:social','ai-marketing-skills:de-ai-ify'],
-     tools:['Headless Chrome renderer'],people:['None to build it']},
+     output:['Drip set: 3, 6 or 9 PNGs at 2160 px','captions.txt with hashtags in 05. Marketing Drip'],
+     check:['"Odoo Partner", never "Certified"','Approved figures only; sample data, charts say Demo data','No Odoo badge on website or marketing-service drips','One clear headline per drip'],
+     template:['TechNext Drip Studio: drip sets (JSON) + render.py'],
+     skills:['marketing-team','marketing-skills:social','ai-marketing-skills:de-ai-ify'],
+     tools:['Drip Studio (hub artifact, local render.py)','Headless Chrome'],people:['None to build it']},
 
-    {id:'nexi',stage:'02 Build materials',mat:true,icon:'video',kicker:'Builds 6th',title:'Nexi video',short:'Nexi',who:['you','You approve the script'],fmt:['MP4'],mock:M.nexi,
+    {id:'nexi',stage:'02 Build materials',mat:true,icon:'video',kicker:'Builds 5th',title:'Nexi video',short:'Nexi',who:['you','You approve the script'],fmt:['MP4'],mock:M.nexi,
      p:'Nexi explains their TechNext solution through NextSprint, on our grid world.',
      summary:'A client explainer video built by nextcore-nexi-video. Nexi explains the TechNext solution the client is getting, step by step through NextSprint, in the adviser voice. The look is TechNext&#8217;s tech design rather than cartoon: a blueprint-light grid world, clean Odoo windows tagged Sample data, flow nodes and the NextSprint step board.',
      steps:[['a','Profile to script: NextSprint&#8217;s 7 steps, adviser voice'],['y','You approve the script and the background'],['a','Build the film on the grid world, then lint'],['a','Measured layout audit and pre-gate'],['a','Render the 16:9 MP4, check the contact sheet'],['a','Full release gate with audio checks'],['a','9:16 cut, previews, file with md5']],
@@ -729,9 +725,9 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
 
     {id:'rebuild',stage:'04 Deliver',icon:'sync',kicker:'Keep up to date',title:'Rebuild on update',short:'Rebuild',who:['auto','Automatic'],
      outs:[['loop','Profile changed',null,'Back to stage 02: only the materials that use the changed fields rebuild']],
-     summary:'When the profile changes, for example the client fills in the Data Gathering page or you correct a figure, NextCore finds which materials use the changed fields and rebuilds only those as the next revision.',
-     steps:[['a','Data Gathering answers or your edit arrive'],['a','Update client-profile.json'],['a','Find the materials that use the changed fields'],['a','Rebuild only those, as the next revision'],['a','Old revision moves to 00. old'],['a','Back through checks and your review']],
-     input:['Data Gathering answers','Your corrections'],
+     summary:'When the profile changes, for example you add new client details or correct a figure, NextCore finds which materials use the changed fields and rebuilds only those as the next revision.',
+     steps:[['a','New client details or your edit arrive'],['a','Update client-profile.json'],['a','Find the materials that use the changed fields'],['a','Rebuild only those, as the next revision'],['a','Old revision moves to 00. old'],['a','Back through checks and your review']],
+     input:['New client details','Your corrections'],
      output:['New revisions of the affected materials'],
      check:['Unchanged materials are not touched'],
      template:['Field-to-material map (inside nextcore)'],
@@ -776,7 +772,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
   (function(){
     var t=document.getElementById('map-t'); if(!t) return;
     function uses(n){return CARDS.filter(function(c){return c.skills.indexOf(n)>=0;}).length;}
-    var names=Object.keys(SK).sort(function(a,b){return ((SK[b].build?1:0)-(SK[a].build?1:0))||(uses(b)-uses(a))||a.localeCompare(b);});
+    var names=Object.keys(SK).filter(function(n){return uses(n)>0;}).sort(function(a,b){return ((SK[b].build?1:0)-(SK[a].build?1:0))||(uses(b)-uses(a))||a.localeCompare(b);});
     var h='<thead><tr><th scope="col">Claude skill</th>'+CARDS.map(function(c){return '<th scope="col"'+(c.mat?' class="m-mat"':'')+'><button type="button" class="m-col" data-open="'+c.id+'"><b>'+c.no+'</b>'+c.short+'</button></th>';}).join('')+'<th scope="col">Cards</th></tr></thead><tbody>';
     names.forEach(function(n){
       var b=SK[n].build;
@@ -788,7 +784,7 @@ pre.code{margin:0;padding:14px 16px;font:400 12px/1.7 var(--f-mono);color:var(--
     var nb=names.filter(function(n){return SK[n].build;}).length;
     var mats=CARDS.filter(function(c){return c.mat;}).length;
     var s=document.getElementById('map-sum');
-    if(s) s.innerHTML=mats+' material builders &#183; '+(names.length-nb)+' skills we already have &#183; '+nb+' new NextCore skills to build. Click a column to open that card.';
+    if(s) s.innerHTML=mats+' material builders &#183; '+(names.length-nb)+' skills we already have &#183; '+(nb?nb+' NextCore skill'+(nb===1?'':'s')+' still to build':'every NextCore skill built')+'. Click a column to open that card.';
   })();
 
   /* ---------------- detail panel ---------------- */
